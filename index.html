@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Censo Escolar Ibiapina | Dashboard Oficial 2024-2026</title>
+    <title>Censo Escolar Ibiapina | Dashboard Oficial 2024-2025</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -360,6 +360,13 @@
             padding: 24px;
             margin-top: 24px;
         }
+        .total-geral-card {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            border-radius: 28px;
+            padding: 24px;
+            text-align: center;
+        }
         footer {
             text-align: center;
             margin-top: 48px;
@@ -402,9 +409,8 @@
             <div class="nav-item" data-section="comparativos"><i class="fas fa-chart-line"></i> <span>Comparativos</span></div>
             <div class="nav-item" data-section="distribuicao"><i class="fas fa-chart-pie"></i> <span>Distribuição</span></div>
             <div class="nav-item" data-section="pcd"><i class="fas fa-universal-access"></i> <span>PCD</span></div>
-            <div class="nav-item" data-section="estadual"><i class="fas fa-building"></i> <span>Estadual</span></div>
-            <div class="nav-item" data-section="result"><i class="fas fa-chart-simple"></i> <span>Resultados</span></div>
-            <div class="nav-item" data-section="exception"><i class="fas fa-exclamation-triangle"></i> <span>Exceção</span></div>
+            <div class="nav-item" data-section="result"><i class="fas fa-chart-simple"></i> <span>Resultado</span></div>
+            <div class="nav-item" data-section="exception"><i class="fas fa-exclamation-triangle"></i> <span>Exceções</span></div>
         </div>
     </div>
 
@@ -412,52 +418,59 @@
         <!-- DASHBOARD PRINCIPAL -->
         <div id="dashboard" class="section-content active-section">
             <div class="page-header">
-                <h1>📊 Censo Educacional 2024–2026</h1>
-                <p>Município de Ibiapina (CE) — dados oficiais por etapa, zona e inclusão</p>
+                <h1>📊 Censo Educacional 2024–2025</h1>
+                <p>Município de Ibiapina (CE) — resultados finais com e sem PCD</p>
             </div>
             <div class="stats-grid">
-                <div class="stat-card"><div class="stat-title"><i class="fas fa-calendar-alt"></i> Matrículas 2024</div><div class="stat-number">4.481</div><div class="stat-trend"><span class="trend-up">Municipal</span></div></div>
-                <div class="stat-card"><div class="stat-title"><i class="fas fa-calendar-check"></i> Matrículas 2025</div><div class="stat-number">4.585</div><div class="stat-trend"><span class="trend-up"><i class="fas fa-arrow-up"></i> +104</span></div></div>
-                <div class="stat-card"><div class="stat-title"><i class="fas fa-universal-access"></i> Alunos PCD 2025</div><div class="stat-number">278</div><div class="stat-trend"><span class="trend-up">Inclusão</span></div></div>
-                <div class="stat-card"><div class="stat-title"><i class="fas fa-chart-line"></i> Projeção 2026</div><div class="stat-number">4.535</div><div class="stat-trend"><span class="trend-down">▼ -50</span></div></div>
+                <div class="stat-card"><div class="stat-title"><i class="fas fa-calendar-alt"></i> 2024 sem PCD</div><div class="stat-number">4.481</div><div class="stat-trend"><span class="trend-up">Base municipal</span></div></div>
+                <div class="stat-card"><div class="stat-title"><i class="fas fa-calendar-check"></i> 2025 sem PCD</div><div class="stat-number">4.341</div><div class="stat-trend"><span class="trend-down">▼ -140 alunos</span></div></div>
+                <div class="stat-card"><div class="stat-title"><i class="fas fa-universal-access"></i> PCD 2025</div><div class="stat-number">278</div><div class="stat-trend"><span class="trend-up">+43 PCD</span></div></div>
+                <div class="stat-card"><div class="stat-title"><i class="fas fa-users"></i> TOTAL 2025 c/ PCD</div><div class="stat-number">4.619</div><div class="stat-trend"><span class="trend-up">+138 total</span></div></div>
             </div>
 
             <div class="charts-row">
-                <div class="chart-card"><h3><i class="fas fa-chart-column"></i> Evolução 2024 → 2025 → 2026</h3><canvas id="evolucaoChart" height="250"></canvas></div>
-                <div class="chart-card"><h3><i class="fas fa-arrows-left-right"></i> Urbano vs Rural · 2024</h3><canvas id="urbanoRuralChart" height="250"></canvas></div>
+                <div class="chart-card"><h3><i class="fas fa-chart-column"></i> Comparativo 2024 × 2025 (sem PCD)</h3><canvas id="comparativoChart" height="250"></canvas></div>
+                <div class="chart-card"><h3><i class="fas fa-chart-line"></i> Evolução com PCD</h3><canvas id="evolucaoComPCD" height="250"></canvas></div>
             </div>
 
             <div class="charts-row">
-                <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Distribuição 2025 por etapa</h3><canvas id="pie2025Chart" height="240"></canvas></div>
-                <div class="ranking-list"><h3><i class="fas fa-chart-line"></i> Variação 2024→2025</h3>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Anos Iniciais</span></div><div class="rank-value" style="color:#10b981;">+62</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Anos Finais</span></div><div class="rank-value" style="color:#10b981;">+74</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Pré-escola</span></div><div class="rank-value" style="color:#10b981;">+48</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Creche</span></div><div class="rank-value" style="color:#10b981;">+4</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▼</span><span class="rank-name">EJA</span></div><div class="rank-value" style="color:#e11d48;">-84</div></div>
+                <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Distribuição 2025 (sem PCD)</h3><canvas id="pie2025Chart" height="240"></canvas></div>
+                <div class="ranking-list"><h3><i class="fas fa-arrow-right"></i> Diferença 2024→2025 (sem PCD)</h3>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Creche</span></div><div class="rank-value" style="color:#10b981;">+7</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Pré-escola</span></div><div class="rank-value" style="color:#10b981;">+15</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Anos Iniciais</span></div><div class="rank-value" style="color:#10b981;">+43</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Anos Finais</span></div><div class="rank-value" style="color:#10b981;">+8</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">EJA</span></div><div class="rank-value" style="color:#10b981;">+67</div></div>
                 </div>
             </div>
-            <footer>Fonte: Censo Escolar 2024/2025/2026 — Ibiapina (CE) · SME</footer>
+
+            <div class="total-geral-card">
+                <i class="fas fa-chart-line" style="font-size: 2rem;"></i>
+                <h3 style="margin-top: 8px;">RESULTADO FINAL 2025 COM PCD</h3>
+                <div style="font-size: 3rem; font-weight: 800;">4.619</div>
+                <p>alunos matriculados (incluindo 278 PCD)</p>
+            </div>
+            <footer>Fonte: Censo Escolar 2024/2025 — Ibiapina (CE) · SME</footer>
         </div>
 
         <!-- MATRÍCULAS -->
         <div id="matriculas" class="section-content">
-            <div class="page-header"><h1><i class="fas fa-edit"></i> Painel de Matrículas</h1><p>Dados consolidados municipais</p></div>
+            <div class="page-header"><h1><i class="fas fa-edit"></i> Painel de Matrículas</h1><p>Resultados finais sem PCD</p></div>
             <div class="matriculas-special-grid">
-                <div class="matriculas-card-large"><div class="matriculas-label">MATRÍCULAS 2024</div><div class="matriculas-valor-principal">4.481</div><div class="matriculas-desc"><i class="fas fa-building"></i> Municipal Urbana: 2.079 <br> <i class="fas fa-tree"></i> Municipal Rural: 2.402</div></div>
-                <div class="matriculas-card-large"><div class="matriculas-label">MATRÍCULAS 2025</div><div class="matriculas-valor-principal">4.585</div><div class="matriculas-desc"><span class="trend-badge-up"><i class="fas fa-arrow-up"></i> +104 alunos</span> <span class="info-chip">Transferidos: 118 | Desistentes: 36 | Falecidos: 1</span></div></div>
-                <div class="matriculas-card-large"><div class="matriculas-label">ZONA URBANA 2024</div><div class="matriculas-valor-principal">2.079</div><div class="matriculas-desc">Creche: 343 | Pré: 307 | Anos Iniciais: 654 | Anos Finais: 697 | EJA: 78</div></div>
-                <div class="matriculas-card-large"><div class="matriculas-label">ZONA RURAL 2024</div><div class="matriculas-valor-principal">2.402</div><div class="matriculas-desc">Creche: 246 | Pré: 351 | Anos Iniciais: 879 | Anos Finais: 569 | EJA: 357</div></div>
+                <div class="matriculas-card-large"><div class="matriculas-label">RESULTADO 2024</div><div class="matriculas-valor-principal">4.481</div><div class="matriculas-desc">Creche: 589 | Pré: 658 | Anos Iniciais: 1.533 | Anos Finais: 1.266 | EJA: 435</div></div>
+                <div class="matriculas-card-large"><div class="matriculas-label">RESULTADO 2025</div><div class="matriculas-valor-principal">4.341</div><div class="matriculas-desc">Creche: 582 | Pré: 643 | Anos Iniciais: 1.490 | Anos Finais: 1.258 | EJA: 368</div></div>
             </div>
             <div class="double-grid">
-                <div class="chart-card"><h3><i class="fas fa-chart-simple"></i> Matrículas 2025 por etapa</h3><canvas id="matriculas2025Bar" height="240"></canvas></div>
-                <div class="ranking-list"><h3><i class="fas fa-school"></i> Resumo 2025</h3>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">🍼</span><span class="rank-name">Creche</span></div><div class="rank-value">593</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">🎨</span><span class="rank-name">Pré-escola</span></div><div class="rank-value">706</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📘</span><span class="rank-name">Anos Iniciais</span></div><div class="rank-value">1.595</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📗</span><span class="rank-name">Anos Finais</span></div><div class="rank-value">1.340</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📖</span><span class="rank-name">EJA</span></div><div class="rank-value">351</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📌</span><span class="rank-name"><strong>TOTAL</strong></span></div><div class="rank-value"><strong>4.585</strong></div></div>
+                <div class="chart-card"><h3><i class="fas fa-chart-simple"></i> Comparativo por etapa</h3><canvas id="matriculasComparativoBar" height="240"></canvas></div>
+                <div class="ranking-list"><h3><i class="fas fa-exchange-alt"></i> Movimentação 2025</h3>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📤</span><span class="rank-name">Transferidos</span></div><div class="rank-value">118</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">⚠️</span><span class="rank-name">Desistentes</span></div><div class="rank-value">36</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">⚰️</span><span class="rank-name">Falecidos</span></div><div class="rank-value">1</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📊</span><span class="rank-name">Transferências por etapa</span></div><div class="rank-value"></div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">🍼</span><span class="rank-name">Educação Infantil</span></div><div class="rank-value">42</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📘</span><span class="rank-name">Fundamental I</span></div><div class="rank-value">51</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📗</span><span class="rank-name">Fundamental II</span></div><div class="rank-value">32</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📖</span><span class="rank-name">EJA</span></div><div class="rank-value">30</div></div>
                 </div>
             </div>
         </div>
@@ -466,86 +479,77 @@
         <div id="comparativos" class="section-content">
             <div class="page-header"><h1><i class="fas fa-chart-line"></i> Comparativo 2024 × 2025</h1></div>
             <div class="charts-row">
-                <div class="chart-card"><h3>📊 Comparativo por etapa</h3><canvas id="comparativoBarChart" height="250"></canvas></div>
-                <div class="ranking-list"><h3><i class="fas fa-exchange-alt"></i> Movimentação</h3>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📤</span><span class="rank-name">Transferidos 2024</span></div><div class="rank-value">113</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📤</span><span class="rank-name">Transferidos 2025</span></div><div class="rank-value">118</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">⚠️</span><span class="rank-name">Desistentes 2024</span></div><div class="rank-value">44</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">⚠️</span><span class="rank-name">Desistentes 2025</span></div><div class="rank-value">36</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">⚰️</span><span class="rank-name">Falecidos 2025</span></div><div class="rank-value">1</div></div>
+                <div class="chart-card"><h3>📊 Diferença por etapa</h3><canvas id="diferencaChart" height="250"></canvas></div>
+                <div class="ranking-list"><h3><i class="fas fa-chart-simple"></i> Resumo das diferenças</h3>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📈</span><span class="rank-name">Maior crescimento</span></div><div class="rank-value">EJA: +67</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📈</span><span class="rank-name">2º maior</span></div><div class="rank-value">Anos Iniciais: +43</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📈</span><span class="rank-name">3º maior</span></div><div class="rank-value">Pré-escola: +15</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📉</span><span class="rank-name">Menor variação</span></div><div class="rank-value">Anos Finais: +8</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📊</span><span class="rank-name">Variação total</span></div><div class="rank-value" style="color:#e11d48;">-140 alunos</div></div>
                 </div>
             </div>
         </div>
 
         <!-- DISTRIBUIÇÃO 2025 -->
         <div id="distribuicao" class="section-content">
-            <div class="page-header"><h1><i class="fas fa-chart-pie"></i> Distribuição 2025 por etapa</h1></div>
+            <div class="page-header"><h1><i class="fas fa-chart-pie"></i> Distribuição 2025 (sem PCD)</h1></div>
             <div style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; margin: 20px 0;">
                 <canvas id="doughnut2025" width="350" height="350" style="max-width: 300px; max-height: 300px;"></canvas>
                 <div style="background: white; border-radius: 28px; padding: 24px;">
                     <h3>📌 Percentuais 2025</h3>
                     <ul style="list-style: none;">
-                        <li><span style="background:#4b7ba0; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> Creche: 593 (12,9%)</li>
-                        <li><span style="background:#6f9e7f; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> Pré-escola: 706 (15,4%)</li>
-                        <li><span style="background:#c9a26c; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> Anos Iniciais: 1.595 (34,8%)</li>
-                        <li><span style="background:#ac7c5c; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> Anos Finais: 1.340 (29,2%)</li>
-                        <li><span style="background:#8c7a6b; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> EJA: 351 (7,7%)</li>
+                        <li><span style="background:#4b7ba0; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> Creche: 582 (13,4%)</li>
+                        <li><span style="background:#6f9e7f; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> Pré-escola: 643 (14,8%)</li>
+                        <li><span style="background:#c9a26c; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> Anos Iniciais: 1.490 (34,3%)</li>
+                        <li><span style="background:#ac7c5c; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> Anos Finais: 1.258 (29,0%)</li>
+                        <li><span style="background:#8c7a6b; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> EJA: 368 (8,5%)</li>
                     </ul>
+                    <hr style="margin: 16px 0;">
+                    <p><strong>Total:</strong> 4.341 alunos</p>
                 </div>
             </div>
         </div>
 
-        <!-- SEÇÃO PCD (Educação Especial) -->
+        <!-- SEÇÃO PCD -->
         <div id="pcd" class="section-content">
             <div class="page-header"><h1><i class="fas fa-universal-access"></i> Alunos com Deficiência (PCD)</h1><p>Educação Especial - Inclusão escolar</p></div>
             <div class="matriculas-special-grid">
-                <div class="matriculas-card-large"><div class="matriculas-label">TOTAL PCD</div><div class="matriculas-valor-principal">278</div><div class="matriculas-desc">Municipal Urbana: 158 | Municipal Rural: 120</div></div>
-                <div class="matriculas-card-large"><div class="matriculas-label">DISTRIBUIÇÃO PCD</div><div class="matriculas-valor-principal">Por etapa</div><div class="matriculas-desc">Creche: 19 | Pré: 56 | Anos Iniciais: 104 | Anos Finais: 83 | EJA: 16</div></div>
+                <div class="matriculas-card-large"><div class="matriculas-label">PCD 2024</div><div class="matriculas-valor-principal">235</div><div class="matriculas-desc">Creche: 19 | Pré: 49 | Anos Iniciais: 84 | Anos Finais: 72 | EJA: 11</div></div>
+                <div class="matriculas-card-large"><div class="matriculas-label">PCD 2025</div><div class="matriculas-valor-principal">278</div><div class="matriculas-desc">Creche: 19 | Pré: 56 | Anos Iniciais: 104 | Anos Finais: 83 | EJA: 16</div></div>
             </div>
-            <div class="chart-card"><h3><i class="fas fa-chart-bar"></i> Alunos PCD por etapa (2025)</h3><canvas id="pcdChart" height="250"></canvas></div>
+            <div class="chart-card"><h3><i class="fas fa-chart-bar"></i> Evolução PCD por etapa (2024 → 2025)</h3><canvas id="pcdEvolucaoChart" height="250"></canvas></div>
             <div class="pcd-highlight">
-                <i class="fas fa-heart"></i> <strong>Inclusão Escolar:</strong> 278 alunos com deficiência inclusos na rede municipal, representando 6,1% do total de matrículas.
-            </div>
-        </div>
-
-        <!-- SEÇÃO ESTADUAL -->
-        <div id="estadual" class="section-content">
-            <div class="page-header"><h1><i class="fas fa-building"></i> Rede Estadual</h1><p>Dados da dependência administrativa estadual</p></div>
-            <div class="matriculas-special-grid">
-                <div class="matriculas-card-large"><div class="matriculas-label">ESTADUAL URBANA</div><div class="matriculas-valor-principal">965</div><div class="matriculas-desc">Ensino Médio (parcial)</div></div>
-                <div class="matriculas-card-large"><div class="matriculas-label">ESTADUAL RURAL</div><div class="matriculas-valor-principal">0</div><div class="matriculas-desc">Sem unidades rurais estaduais</div></div>
-            </div>
-            <div class="double-grid">
-                <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Total Geral (Estadual + Municipal)</h3><canvas id="totalGeralPie" height="240"></canvas></div>
-                <div class="ranking-list"><h3><i class="fas fa-database"></i> Resumo 2025</h3>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">🏛️</span><span class="rank-name">Estadual</span></div><div class="rank-value">965</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">🏫</span><span class="rank-name">Municipal</span></div><div class="rank-value">4.585</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📊</span><span class="rank-name"><strong>TOTAL GERAL</strong></span></div><div class="rank-value"><strong>5.550</strong></div></div>
-                </div>
+                <i class="fas fa-heart"></i> <strong>Crescimento da Inclusão:</strong> 43 novos alunos PCD em 2025 (+18,3% em relação a 2024)
             </div>
         </div>
 
         <!-- RESULT -->
         <div id="result" class="section-content">
-            <div class="page-header"><h1>🏆 Resultados e Metas</h1></div>
+            <div class="page-header"><h1>🏆 Resultados Finais</h1></div>
             <div class="matriculas-card-large" style="text-align:center;">
-                <i class="fas fa-trophy" style="font-size:3rem; color:#f59e0b;"></i>
-                <h2>Crescimento 2024→2025: +2,3%</h2>
-                <p>✅ Anos Iniciais e Finais em expansão<br>📉 Desafio: EJA com redução de 84 matrículas (-19,3%)<br>🎯 Meta 2026: Estabilização com 4.535 matrículas</p>
-                <div class="info-chip">Taxa de desistência reduziu de 0,98% para 0,78%</div>
+                <i class="fas fa-chart-line" style="font-size:3rem; color:#f59e0b;"></i>
+                <h2 style="margin: 16px 0;">Resumo Comparativo 2024 → 2025</h2>
+                <div class="double-grid" style="margin-top: 0;">
+                    <div><strong>📊 Sem PCD:</strong><br>4.481 → 4.341<br><span style="color:#e11d48;">▼ -140 alunos</span></div>
+                    <div><strong>♿ Com PCD:</strong><br>4.716 → 4.619<br><span style="color:#e11d48;">▼ -97 alunos</span></div>
+                    <div><strong>📈 Crescimento PCD:</strong><br>235 → 278<br><span style="color:#10b981;">▲ +43 alunos</span></div>
+                    <div><strong>🔄 Transferências:</strong><br>2024: 113 | 2025: 118<br><span style="color:#10b981;">▲ +5</span></div>
+                </div>
+                <div class="info-chip" style="margin-top: 20px;">Taxa de desistência: 0,98% (2024) → 0,83% (2025)</div>
             </div>
         </div>
 
         <!-- EXCEPTION -->
         <div id="exception" class="section-content">
-            <div class="page-header"><h1>⚠️ Alertas e Exceções</h1></div>
+            <div class="page-header"><h1>⚠️ Alertas e Observações</h1></div>
             <div class="matriculas-card-large">
                 <i class="fas fa-exclamation-triangle" style="font-size:2rem; color:#e11d48;"></i>
-                <h3>Queda na EJA Fundamental</h3>
-                <p>Redução de 84 matrículas (-19,3%) entre 2024 e 2025. Necessidade de campanhas de reingresso e flexibilização de horários.</p>
+                <h3>Queda no total de matrículas sem PCD</h3>
+                <p>Redução de 140 alunos entre 2024 e 2025 (-3,1%). Apesar do crescimento da inclusão (PCD), o número total de matrículas regulares diminuiu.</p>
                 <hr>
-                <p><i class="fas fa-chart-line"></i> Projeção 2026: EJA com 390 matrículas (leve recuperação)</p>
-                <p><i class="fas fa-building"></i> Rede estadual atende 965 alunos do Ensino Médio na zona urbana.</p>
+                <p><i class="fas fa-chart-line"></i> <strong>Pontos positivos:</strong> EJA cresceu 67 alunos (+15,4%), Anos Iniciais cresceu 43 alunos (+2,8%)</p>
+                <p><i class="fas fa-universal-access"></i> <strong>Inclusão:</strong> 43 novos alunos PCD matriculados em 2025</p>
+                <p><i class="fas fa-exchange-alt"></i> <strong>Transferências:</strong> Aumento de 5 transferências em relação a 2024</p>
             </div>
         </div>
     </div>
@@ -574,7 +578,6 @@
             comparativos: document.getElementById('comparativos'),
             distribuicao: document.getElementById('distribuicao'),
             pcd: document.getElementById('pcd'),
-            estadual: document.getElementById('estadual'),
             result: document.getElementById('result'),
             exception: document.getElementById('exception')
         };
@@ -594,52 +597,52 @@
             });
         });
 
-        // DADOS OFICIAIS DA PLANILHA
+        // DADOS OFICIAIS DA PLANILHA RESUMIDA
         const etapas = ['Creche', 'Pré-escola', 'Anos Iniciais', 'Anos Finais', 'EJA'];
         const data2024 = [589, 658, 1533, 1266, 435];
-        const data2025 = [593, 706, 1595, 1340, 351];
-        const data2026 = [1185, null, 2960, null, 390];
+        const data2025 = [582, 643, 1490, 1258, 368];
+        const diferenca = [7, 15, 43, 8, 67];
         
-        const urbano = [343, 307, 654, 697, 78];
-        const rural = [246, 351, 879, 569, 357];
+        const pcd2024 = [19, 49, 84, 72, 11];
+        const pcd2025 = [19, 56, 104, 83, 16];
         
-        const pcdData = [19, 56, 104, 83, 16];
+        const totalComPCD2024 = 4716;
+        const totalComPCD2025 = 4619;
 
         // GRÁFICOS
-        new Chart(document.getElementById('evolucaoChart'), {
+        new Chart(document.getElementById('comparativoChart'), {
             type: 'bar',
             data: { labels: etapas, datasets: [
-                { label: '2024', data: data2024, backgroundColor: '#92adc2' },
-                { label: '2025', data: data2025, backgroundColor: '#2c6e9e' },
-                { label: '2026 (proj)', data: [1185, 0, 2960, 0, 390], backgroundColor: '#a855f7' }
+                { label: '2024', data: data2024, backgroundColor: '#2c6e9e', borderRadius: 8 },
+                { label: '2025', data: data2025, backgroundColor: '#e67e22', borderRadius: 8 }
             ]}
         });
 
-        new Chart(document.getElementById('urbanoRuralChart'), {
-            type: 'bar',
+        new Chart(document.getElementById('evolucaoComPCD'), {
+            type: 'line',
             data: { labels: etapas, datasets: [
-                { label: 'Zona Urbana', data: urbano, backgroundColor: '#6f9e7f' },
-                { label: 'Zona Rural', data: rural, backgroundColor: '#c99e6f' }
+                { label: 'Total com PCD 2024', data: [589+19, 658+49, 1533+84, 1266+72, 435+11], borderColor: '#2c6e9e', tension: 0.2 },
+                { label: 'Total com PCD 2025', data: [582+19, 643+56, 1490+104, 1258+83, 368+16], borderColor: '#e67e22', tension: 0.2 }
             ]}
         });
 
         new Chart(document.getElementById('pie2025Chart'), {
             type: 'pie',
-            data: { labels: ['Creche (593)', 'Pré (706)', 'Anos Iniciais (1595)', 'Anos Finais (1340)', 'EJA (351)'],
-                    datasets: [{ data: [593,706,1595,1340,351], backgroundColor: ['#4b7ba0','#6f9e7f','#c9a26c','#ac7c5c','#8c7a6b'] }] }
+            data: { labels: ['Creche (582)', 'Pré (643)', 'Anos Iniciais (1490)', 'Anos Finais (1258)', 'EJA (368)'],
+                    datasets: [{ data: data2025, backgroundColor: ['#4b7ba0','#6f9e7f','#c9a26c','#ac7c5c','#8c7a6b'] }] }
         });
 
-        new Chart(document.getElementById('matriculas2025Bar'), {
-            type: 'bar',
-            data: { labels: etapas, datasets: [{ label: 'Matrículas 2025', data: data2025, backgroundColor: '#3b82f6' }] }
-        });
-
-        new Chart(document.getElementById('comparativoBarChart'), {
+        new Chart(document.getElementById('matriculasComparativoBar'), {
             type: 'bar',
             data: { labels: etapas, datasets: [
-                { label: '2024', data: data2024, backgroundColor: '#92adc2' },
-                { label: '2025', data: data2025, backgroundColor: '#2c6e9e' }
+                { label: '2024', data: data2024, backgroundColor: '#2c6e9e' },
+                { label: '2025', data: data2025, backgroundColor: '#e67e22' }
             ]}
+        });
+
+        new Chart(document.getElementById('diferencaChart'), {
+            type: 'bar',
+            data: { labels: etapas, datasets: [{ label: 'Diferença (2025 - 2024)', data: diferenca, backgroundColor: '#10b981', borderRadius: 8 }] }
         });
 
         new Chart(document.getElementById('doughnut2025'), {
@@ -648,14 +651,12 @@
             options: { cutout: '55%' }
         });
 
-        new Chart(document.getElementById('pcdChart'), {
+        new Chart(document.getElementById('pcdEvolucaoChart'), {
             type: 'bar',
-            data: { labels: etapas, datasets: [{ label: 'Alunos PCD', data: pcdData, backgroundColor: '#667eea', borderRadius: 8 }] }
-        });
-
-        new Chart(document.getElementById('totalGeralPie'), {
-            type: 'pie',
-            data: { labels: ['Municipal (4.585)', 'Estadual (965)'], datasets: [{ data: [4585, 965], backgroundColor: ['#2c6e9e', '#a855f7'] }] }
+            data: { labels: etapas, datasets: [
+                { label: 'PCD 2024', data: pcd2024, backgroundColor: '#92adc2', borderRadius: 8 },
+                { label: 'PCD 2025', data: pcd2025, backgroundColor: '#667eea', borderRadius: 8 }
+            ]}
         });
     </script>
 </body>
