@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Censo Escolar Ibiapina | Dashboard Oficial 2024-2025</title>
+    <title>Censo Escolar Ibiapina | Dashboard Oficial</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -219,6 +219,8 @@
             background: #fee9e9;
             padding: 2px 12px;
             border-radius: 40px;
+            display: inline-block;
+            font-weight: 600;
         }
 
         .charts-row {
@@ -353,18 +355,26 @@
             gap: 28px;
             margin-top: 20px;
         }
-        .pcd-highlight {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 28px;
-            padding: 24px;
-            margin-top: 24px;
-        }
-        .total-geral-card {
+        .total-card {
             background: linear-gradient(135deg, #059669 0%, #10b981 100%);
             color: white;
             border-radius: 28px;
-            padding: 24px;
+            padding: 28px;
+            text-align: center;
+        }
+        .total-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+        .total-number {
+            font-size: 3.5rem;
+            font-weight: 800;
+        }
+        .pcd-card {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            color: white;
+            border-radius: 28px;
+            padding: 28px;
             text-align: center;
         }
         footer {
@@ -409,8 +419,8 @@
             <div class="nav-item" data-section="comparativos"><i class="fas fa-chart-line"></i> <span>Comparativos</span></div>
             <div class="nav-item" data-section="distribuicao"><i class="fas fa-chart-pie"></i> <span>Distribuição</span></div>
             <div class="nav-item" data-section="pcd"><i class="fas fa-universal-access"></i> <span>PCD</span></div>
+            <div class="nav-item" data-section="movimentacao"><i class="fas fa-exchange-alt"></i> <span>Movimentação</span></div>
             <div class="nav-item" data-section="result"><i class="fas fa-chart-simple"></i> <span>Resultado</span></div>
-            <div class="nav-item" data-section="exception"><i class="fas fa-exclamation-triangle"></i> <span>Exceções</span></div>
         </div>
     </div>
 
@@ -421,21 +431,48 @@
                 <h1>📊 Censo Educacional 2024–2025</h1>
                 <p>Município de Ibiapina (CE) — resultados finais com e sem PCD</p>
             </div>
+
             <div class="stats-grid">
-                <div class="stat-card"><div class="stat-title"><i class="fas fa-calendar-alt"></i> 2024 sem PCD</div><div class="stat-number">4.481</div><div class="stat-trend"><span class="trend-up">Base municipal</span></div></div>
-                <div class="stat-card"><div class="stat-title"><i class="fas fa-calendar-check"></i> 2025 sem PCD</div><div class="stat-number">4.341</div><div class="stat-trend"><span class="trend-down">▼ -140 alunos</span></div></div>
-                <div class="stat-card"><div class="stat-title"><i class="fas fa-universal-access"></i> PCD 2025</div><div class="stat-number">278</div><div class="stat-trend"><span class="trend-up">+43 PCD</span></div></div>
-                <div class="stat-card"><div class="stat-title"><i class="fas fa-users"></i> TOTAL 2025 c/ PCD</div><div class="stat-number">4.619</div><div class="stat-trend"><span class="trend-up">+138 total</span></div></div>
+                <div class="stat-card">
+                    <div class="stat-title"><i class="fas fa-calendar-alt"></i> 2024 sem PCD</div>
+                    <div class="stat-number">4.481</div>
+                    <div class="stat-trend"><span class="trend-up">Base municipal</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title"><i class="fas fa-calendar-check"></i> 2025 sem PCD</div>
+                    <div class="stat-number">4.341</div>
+                    <div class="stat-trend"><span class="trend-down">▼ -140 alunos</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title"><i class="fas fa-universal-access"></i> PCD 2025</div>
+                    <div class="stat-number">278</div>
+                    <div class="stat-trend"><span class="trend-up">▲ +43 PCD</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title"><i class="fas fa-users"></i> Total 2025 c/ PCD</div>
+                    <div class="stat-number">4.619</div>
+                    <div class="stat-trend"><span class="trend-up">Inclusivo</span></div>
+                </div>
             </div>
 
             <div class="charts-row">
-                <div class="chart-card"><h3><i class="fas fa-chart-column"></i> Comparativo 2024 × 2025 (sem PCD)</h3><canvas id="comparativoChart" height="250"></canvas></div>
-                <div class="chart-card"><h3><i class="fas fa-chart-line"></i> Evolução com PCD</h3><canvas id="evolucaoComPCD" height="250"></canvas></div>
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-column"></i> Comparativo 2024 × 2025 (sem PCD)</h3>
+                    <canvas id="comparativoChart" height="250"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-line"></i> Evolução Total com PCD</h3>
+                    <canvas id="evolucaoComPCD" height="250"></canvas>
+                </div>
             </div>
 
             <div class="charts-row">
-                <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Distribuição 2025 (sem PCD)</h3><canvas id="pie2025Chart" height="240"></canvas></div>
-                <div class="ranking-list"><h3><i class="fas fa-arrow-right"></i> Diferença 2024→2025 (sem PCD)</h3>
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-pie"></i> Distribuição 2025 (sem PCD)</h3>
+                    <canvas id="pie2025Chart" height="240"></canvas>
+                </div>
+                <div class="ranking-list">
+                    <h3><i class="fas fa-arrow-right"></i> Diferença 2024→2025 (sem PCD)</h3>
                     <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Creche</span></div><div class="rank-value" style="color:#10b981;">+7</div></div>
                     <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Pré-escola</span></div><div class="rank-value" style="color:#10b981;">+15</div></div>
                     <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Anos Iniciais</span></div><div class="rank-value" style="color:#10b981;">+43</div></div>
@@ -444,55 +481,85 @@
                 </div>
             </div>
 
-            <div class="total-geral-card">
-                <i class="fas fa-chart-line" style="font-size: 2rem;"></i>
-                <h3 style="margin-top: 8px;">RESULTADO FINAL 2025 COM PCD</h3>
-                <div style="font-size: 3rem; font-weight: 800;">4.619</div>
+            <div class="total-card">
+                <h3><i class="fas fa-chart-line"></i> RESULTADO FINAL 2025 COM PCD</h3>
+                <div class="total-number">4.619</div>
                 <p>alunos matriculados (incluindo 278 PCD)</p>
             </div>
+
             <footer>Fonte: Censo Escolar 2024/2025 — Ibiapina (CE) · SME</footer>
         </div>
 
         <!-- MATRÍCULAS -->
         <div id="matriculas" class="section-content">
-            <div class="page-header"><h1><i class="fas fa-edit"></i> Painel de Matrículas</h1><p>Resultados finais sem PCD</p></div>
-            <div class="matriculas-special-grid">
-                <div class="matriculas-card-large"><div class="matriculas-label">RESULTADO 2024</div><div class="matriculas-valor-principal">4.481</div><div class="matriculas-desc">Creche: 589 | Pré: 658 | Anos Iniciais: 1.533 | Anos Finais: 1.266 | EJA: 435</div></div>
-                <div class="matriculas-card-large"><div class="matriculas-label">RESULTADO 2025</div><div class="matriculas-valor-principal">4.341</div><div class="matriculas-desc">Creche: 582 | Pré: 643 | Anos Iniciais: 1.490 | Anos Finais: 1.258 | EJA: 368</div></div>
+            <div class="page-header">
+                <h1><i class="fas fa-edit"></i> Painel de Matrículas</h1>
+                <p>Resultados finais sem PCD</p>
             </div>
+
+            <div class="matriculas-special-grid">
+                <div class="matriculas-card-large">
+                    <div class="matriculas-label">RESULTADO 2024</div>
+                    <div class="matriculas-valor-principal">4.481</div>
+                    <div class="matriculas-desc">Creche: 589 | Pré: 658 | Anos Iniciais: 1.533 | Anos Finais: 1.266 | EJA: 435</div>
+                </div>
+                <div class="matriculas-card-large">
+                    <div class="matriculas-label">RESULTADO 2025</div>
+                    <div class="matriculas-valor-principal">4.341</div>
+                    <div class="matriculas-desc">Creche: 582 | Pré: 643 | Anos Iniciais: 1.490 | Anos Finais: 1.258 | EJA: 368</div>
+                </div>
+            </div>
+
             <div class="double-grid">
-                <div class="chart-card"><h3><i class="fas fa-chart-simple"></i> Comparativo por etapa</h3><canvas id="matriculasComparativoBar" height="240"></canvas></div>
-                <div class="ranking-list"><h3><i class="fas fa-exchange-alt"></i> Movimentação 2025</h3>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📤</span><span class="rank-name">Transferidos</span></div><div class="rank-value">118</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">⚠️</span><span class="rank-name">Desistentes</span></div><div class="rank-value">36</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">⚰️</span><span class="rank-name">Falecidos</span></div><div class="rank-value">1</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📊</span><span class="rank-name">Transferências por etapa</span></div><div class="rank-value"></div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">🍼</span><span class="rank-name">Educação Infantil</span></div><div class="rank-value">42</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📘</span><span class="rank-name">Fundamental I</span></div><div class="rank-value">51</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📗</span><span class="rank-name">Fundamental II</span></div><div class="rank-value">32</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📖</span><span class="rank-name">EJA</span></div><div class="rank-value">30</div></div>
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-simple"></i> Comparativo por etapa</h3>
+                    <canvas id="matriculasComparativoBar" height="240"></canvas>
+                </div>
+                <div class="ranking-list">
+                    <h3><i class="fas fa-database"></i> Totais por ano</h3>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📅</span><span class="rank-name">2024 sem PCD</span></div><div class="rank-value">4.481</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📅</span><span class="rank-name">2025 sem PCD</span></div><div class="rank-value">4.341</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📊</span><span class="rank-name">Variação</span></div><div class="rank-value" style="color:#e11d48;">-140</div></div>
                 </div>
             </div>
         </div>
 
         <!-- COMPARATIVOS -->
         <div id="comparativos" class="section-content">
-            <div class="page-header"><h1><i class="fas fa-chart-line"></i> Comparativo 2024 × 2025</h1></div>
+            <div class="page-header">
+                <h1><i class="fas fa-chart-line"></i> Comparativo 2024 × 2025</h1>
+                <p>Diferenças por etapa de ensino (sem PCD)</p>
+            </div>
+
             <div class="charts-row">
-                <div class="chart-card"><h3>📊 Diferença por etapa</h3><canvas id="diferencaChart" height="250"></canvas></div>
-                <div class="ranking-list"><h3><i class="fas fa-chart-simple"></i> Resumo das diferenças</h3>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📈</span><span class="rank-name">Maior crescimento</span></div><div class="rank-value">EJA: +67</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📈</span><span class="rank-name">2º maior</span></div><div class="rank-value">Anos Iniciais: +43</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📈</span><span class="rank-name">3º maior</span></div><div class="rank-value">Pré-escola: +15</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📉</span><span class="rank-name">Menor variação</span></div><div class="rank-value">Anos Finais: +8</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📊</span><span class="rank-name">Variação total</span></div><div class="rank-value" style="color:#e11d48;">-140 alunos</div></div>
+                <div class="chart-card">
+                    <h3>📊 Diferença por etapa (2025 - 2024)</h3>
+                    <canvas id="diferencaChart" height="250"></canvas>
                 </div>
+                <div class="ranking-list">
+                    <h3><i class="fas fa-chart-simple"></i> Resumo das diferenças</h3>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">1º</span><span class="rank-name">EJA</span></div><div class="rank-value" style="color:#10b981;">+67</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">2º</span><span class="rank-name">Anos Iniciais</span></div><div class="rank-value" style="color:#10b981;">+43</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">3º</span><span class="rank-name">Pré-escola</span></div><div class="rank-value" style="color:#10b981;">+15</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">4º</span><span class="rank-name">Anos Finais</span></div><div class="rank-value" style="color:#10b981;">+8</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">5º</span><span class="rank-name">Creche</span></div><div class="rank-value" style="color:#10b981;">+7</div></div>
+                </div>
+            </div>
+
+            <div class="total-card" style="background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);">
+                <h3>📈 Variação Total (sem PCD)</h3>
+                <div class="total-number" style="font-size: 2.5rem;">4.481 → 4.341</div>
+                <p>▼ Redução de 140 matrículas (-3,1%)</p>
             </div>
         </div>
 
         <!-- DISTRIBUIÇÃO 2025 -->
         <div id="distribuicao" class="section-content">
-            <div class="page-header"><h1><i class="fas fa-chart-pie"></i> Distribuição 2025 (sem PCD)</h1></div>
+            <div class="page-header">
+                <h1><i class="fas fa-chart-pie"></i> Distribuição 2025</h1>
+                <p>Participação percentual de cada etapa (sem PCD)</p>
+            </div>
+
             <div style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; margin: 20px 0;">
                 <canvas id="doughnut2025" width="350" height="350" style="max-width: 300px; max-height: 300px;"></canvas>
                 <div style="background: white; border-radius: 28px; padding: 24px;">
@@ -510,46 +577,116 @@
             </div>
         </div>
 
-        <!-- SEÇÃO PCD -->
+        <!-- PCD -->
         <div id="pcd" class="section-content">
-            <div class="page-header"><h1><i class="fas fa-universal-access"></i> Alunos com Deficiência (PCD)</h1><p>Educação Especial - Inclusão escolar</p></div>
+            <div class="page-header">
+                <h1><i class="fas fa-universal-access"></i> Alunos com Deficiência (PCD)</h1>
+                <p>Educação Especial - Inclusão escolar</p>
+            </div>
+
             <div class="matriculas-special-grid">
-                <div class="matriculas-card-large"><div class="matriculas-label">PCD 2024</div><div class="matriculas-valor-principal">235</div><div class="matriculas-desc">Creche: 19 | Pré: 49 | Anos Iniciais: 84 | Anos Finais: 72 | EJA: 11</div></div>
-                <div class="matriculas-card-large"><div class="matriculas-label">PCD 2025</div><div class="matriculas-valor-principal">278</div><div class="matriculas-desc">Creche: 19 | Pré: 56 | Anos Iniciais: 104 | Anos Finais: 83 | EJA: 16</div></div>
-            </div>
-            <div class="chart-card"><h3><i class="fas fa-chart-bar"></i> Evolução PCD por etapa (2024 → 2025)</h3><canvas id="pcdEvolucaoChart" height="250"></canvas></div>
-            <div class="pcd-highlight">
-                <i class="fas fa-heart"></i> <strong>Crescimento da Inclusão:</strong> 43 novos alunos PCD em 2025 (+18,3% em relação a 2024)
-            </div>
-        </div>
-
-        <!-- RESULT -->
-        <div id="result" class="section-content">
-            <div class="page-header"><h1>🏆 Resultados Finais</h1></div>
-            <div class="matriculas-card-large" style="text-align:center;">
-                <i class="fas fa-chart-line" style="font-size:3rem; color:#f59e0b;"></i>
-                <h2 style="margin: 16px 0;">Resumo Comparativo 2024 → 2025</h2>
-                <div class="double-grid" style="margin-top: 0;">
-                    <div><strong>📊 Sem PCD:</strong><br>4.481 → 4.341<br><span style="color:#e11d48;">▼ -140 alunos</span></div>
-                    <div><strong>♿ Com PCD:</strong><br>4.716 → 4.619<br><span style="color:#e11d48;">▼ -97 alunos</span></div>
-                    <div><strong>📈 Crescimento PCD:</strong><br>235 → 278<br><span style="color:#10b981;">▲ +43 alunos</span></div>
-                    <div><strong>🔄 Transferências:</strong><br>2024: 113 | 2025: 118<br><span style="color:#10b981;">▲ +5</span></div>
+                <div class="matriculas-card-large">
+                    <div class="matriculas-label">PCD 2024</div>
+                    <div class="matriculas-valor-principal">235</div>
+                    <div class="matriculas-desc">Creche: 19 | Pré: 49 | Anos Iniciais: 84 | Anos Finais: 72 | EJA: 11</div>
                 </div>
-                <div class="info-chip" style="margin-top: 20px;">Taxa de desistência: 0,98% (2024) → 0,83% (2025)</div>
+                <div class="matriculas-card-large">
+                    <div class="matriculas-label">PCD 2025</div>
+                    <div class="matriculas-valor-principal">278</div>
+                    <div class="matriculas-desc">Creche: 19 | Pré: 56 | Anos Iniciais: 104 | Anos Finais: 83 | EJA: 16</div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-bar"></i> Evolução PCD por etapa (2024 → 2025)</h3>
+                <canvas id="pcdEvolucaoChart" height="250"></canvas>
+            </div>
+
+            <div class="pcd-card" style="margin-top: 24px;">
+                <h3><i class="fas fa-heart"></i> Crescimento da Inclusão</h3>
+                <div class="total-number" style="font-size: 2.5rem;">▲ +43 alunos PCD</div>
+                <p>235 → 278 (+18,3% em relação a 2024)</p>
             </div>
         </div>
 
-        <!-- EXCEPTION -->
-        <div id="exception" class="section-content">
-            <div class="page-header"><h1>⚠️ Alertas e Observações</h1></div>
-            <div class="matriculas-card-large">
-                <i class="fas fa-exclamation-triangle" style="font-size:2rem; color:#e11d48;"></i>
-                <h3>Queda no total de matrículas sem PCD</h3>
-                <p>Redução de 140 alunos entre 2024 e 2025 (-3,1%). Apesar do crescimento da inclusão (PCD), o número total de matrículas regulares diminuiu.</p>
-                <hr>
-                <p><i class="fas fa-chart-line"></i> <strong>Pontos positivos:</strong> EJA cresceu 67 alunos (+15,4%), Anos Iniciais cresceu 43 alunos (+2,8%)</p>
-                <p><i class="fas fa-universal-access"></i> <strong>Inclusão:</strong> 43 novos alunos PCD matriculados em 2025</p>
-                <p><i class="fas fa-exchange-alt"></i> <strong>Transferências:</strong> Aumento de 5 transferências em relação a 2024</p>
+        <!-- MOVIMENTAÇÃO -->
+        <div id="movimentacao" class="section-content">
+            <div class="page-header">
+                <h1><i class="fas fa-exchange-alt"></i> Movimentação Escolar</h1>
+                <p>Transferências, desistências e falecimentos</p>
+            </div>
+
+            <div class="matriculas-special-grid">
+                <div class="matriculas-card-large">
+                    <div class="matriculas-label">MOVIMENTAÇÃO 2024</div>
+                    <div class="matriculas-valor-principal" style="font-size: 2rem;">Transferências</div>
+                    <div class="matriculas-desc">📤 Transferidos: 113 | ⚠️ Desistentes: 44</div>
+                </div>
+                <div class="matriculas-card-large">
+                    <div class="matriculas-label">MOVIMENTAÇÃO 2025</div>
+                    <div class="matriculas-valor-principal" style="font-size: 2rem;">Transferências</div>
+                    <div class="matriculas-desc">📤 Transferidos: 118 | ⚠️ Desistentes: 36 | ⚰️ Falecidos: 1</div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-bar"></i> Transferências por etapa (2025)</h3>
+                <canvas id="transferenciasChart" height="250"></canvas>
+            </div>
+
+            <div class="double-grid">
+                <div class="ranking-list">
+                    <h3><i class="fas fa-chart-line"></i> Comparativo Movimentação</h3>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📤</span><span class="rank-name">Transferências 2024</span></div><div class="rank-value">113</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📤</span><span class="rank-name">Transferências 2025</span></div><div class="rank-value">118</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">⚠️</span><span class="rank-name">Desistentes 2024</span></div><div class="rank-value">44</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">⚠️</span><span class="rank-name">Desistentes 2025</span></div><div class="rank-value">36</div></div>
+                </div>
+                <div class="ranking-list">
+                    <h3><i class="fas fa-tag"></i> Transferências 2025 por etapa</h3>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">🍼</span><span class="rank-name">Educação Infantil</span></div><div class="rank-value">42</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📘</span><span class="rank-name">Fundamental I</span></div><div class="rank-value">51</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📗</span><span class="rank-name">Fundamental II</span></div><div class="rank-value">32</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📖</span><span class="rank-name">EJA</span></div><div class="rank-value">30</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTADO -->
+        <div id="result" class="section-content">
+            <div class="page-header">
+                <h1><i class="fas fa-chart-simple"></i> Resultado Final Consolidado</h1>
+                <p>Visão geral 2024 × 2025</p>
+            </div>
+
+            <div class="double-grid">
+                <div class="total-card" style="background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);">
+                    <h3>📊 SEM PCD</h3>
+                    <div class="total-number" style="font-size: 2rem;">4.481 → 4.341</div>
+                    <p>▼ -140 alunos</p>
+                </div>
+                <div class="total-card" style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);">
+                    <h3>♿ COM PCD</h3>
+                    <div class="total-number" style="font-size: 2rem;">4.716 → 4.619</div>
+                    <p>▼ -97 alunos</p>
+                </div>
+                <div class="total-card" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+                    <h3>📈 PCD</h3>
+                    <div class="total-number" style="font-size: 2rem;">235 → 278</div>
+                    <p>▲ +43 alunos</p>
+                </div>
+                <div class="total-card" style="background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);">
+                    <h3>🔄 TRANSFERÊNCIAS</h3>
+                    <div class="total-number" style="font-size: 2rem;">113 → 118</div>
+                    <p>▲ +5</p>
+                </div>
+            </div>
+
+            <div class="matriculas-card-large" style="margin-top: 24px; text-align: center;">
+                <i class="fas fa-chart-line" style="font-size: 2rem; color: #f59e0b;"></i>
+                <h3 style="margin-top: 12px;">Taxa de Desistência</h3>
+                <div style="font-size: 1.5rem; font-weight: 700;">0,98% (2024) → 0,83% (2025)</div>
+                <p>Redução de 0,15 pontos percentuais</p>
             </div>
         </div>
     </div>
@@ -578,9 +715,10 @@
             comparativos: document.getElementById('comparativos'),
             distribuicao: document.getElementById('distribuicao'),
             pcd: document.getElementById('pcd'),
-            result: document.getElementById('result'),
-            exception: document.getElementById('exception')
+            movimentacao: document.getElementById('movimentacao'),
+            result: document.getElementById('result')
         };
+
         function activateSection(sectionId) {
             Object.values(sections).forEach(sec => { if(sec) sec.classList.remove('active-section'); });
             if(sections[sectionId]) sections[sectionId].classList.add('active-section');
@@ -590,6 +728,7 @@
                 else item.classList.remove('active');
             });
         }
+
         navItems.forEach(item => {
             item.addEventListener('click', () => {
                 const secId = item.getAttribute('data-section');
@@ -606,8 +745,8 @@
         const pcd2024 = [19, 49, 84, 72, 11];
         const pcd2025 = [19, 56, 104, 83, 16];
         
-        const totalComPCD2024 = 4716;
-        const totalComPCD2025 = 4619;
+        const transferenciasEtapa = [42, 51, 32, 30];
+        const transferenciasLabels = ['Educação Infantil', 'Fundamental I', 'Fundamental II', 'EJA'];
 
         // GRÁFICOS
         new Chart(document.getElementById('comparativoChart'), {
@@ -621,8 +760,8 @@
         new Chart(document.getElementById('evolucaoComPCD'), {
             type: 'line',
             data: { labels: etapas, datasets: [
-                { label: 'Total com PCD 2024', data: [589+19, 658+49, 1533+84, 1266+72, 435+11], borderColor: '#2c6e9e', tension: 0.2 },
-                { label: 'Total com PCD 2025', data: [582+19, 643+56, 1490+104, 1258+83, 368+16], borderColor: '#e67e22', tension: 0.2 }
+                { label: 'Total com PCD 2024', data: [589+19, 658+49, 1533+84, 1266+72, 435+11], borderColor: '#2c6e9e', tension: 0.2, fill: false },
+                { label: 'Total com PCD 2025', data: [582+19, 643+56, 1490+104, 1258+83, 368+16], borderColor: '#e67e22', tension: 0.2, fill: false }
             ]}
         });
 
@@ -655,8 +794,13 @@
             type: 'bar',
             data: { labels: etapas, datasets: [
                 { label: 'PCD 2024', data: pcd2024, backgroundColor: '#92adc2', borderRadius: 8 },
-                { label: 'PCD 2025', data: pcd2025, backgroundColor: '#667eea', borderRadius: 8 }
+                { label: 'PCD 2025', data: pcd2025, backgroundColor: '#7c3aed', borderRadius: 8 }
             ]}
+        });
+
+        new Chart(document.getElementById('transferenciasChart'), {
+            type: 'bar',
+            data: { labels: transferenciasLabels, datasets: [{ label: 'Transferências 2025', data: transferenciasEtapa, backgroundColor: '#f59e0b', borderRadius: 8 }] }
         });
     </script>
 </body>
