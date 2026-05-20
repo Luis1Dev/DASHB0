@@ -1,77 +1,662 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Acessar Cardápio</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px;
-      background: linear-gradient(to bottom, #3b1f14, #1a0d08);
-      color: white;
-    }
-    .container {
-      max-width: 500px;
-      margin: 0 auto;
-      background: rgba(255,255,255,0.1);
-      padding: 40px;
-      border-radius: 20px;
-    }
-    .mesa-btn {
-      display: block;
-      width: 100%;
-      padding: 15px;
-      margin: 10px 0;
-      background: #c7741c;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 18px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-    .mesa-btn:hover {
-      background: #a85f16;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 8px;
-      border: none;
-      font-size: 16px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Censo Escolar Ibiapina | Dashboard Oficial 2024-2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ========= SIDEBAR ========= */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #0f172a 0%, #0a0f1c 100%);
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            box-shadow: 6px 0 24px rgba(0,0,0,0.12);
+            z-index: 20;
+            transition: width 0.25s ease-in-out;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .sidebar.collapsed {
+            width: 85px;
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            top: 20px;
+            right: -14px;
+            background: #1e293b;
+            width: 32px;
+            height: 32px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 30;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.2s;
+            color: white;
+        }
+        .sidebar-toggle:hover {
+            background: #3b82f6;
+        }
+        .sidebar.collapsed .sidebar-toggle {
+            transform: rotate(180deg);
+        }
+
+        .logo-area {
+            padding: 32px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            margin-bottom: 28px;
+        }
+        .sidebar.collapsed .logo-area {
+            padding: 32px 12px;
+            text-align: center;
+        }
+        .sidebar.collapsed .logo-area h2 {
+            font-size: 1.2rem;
+            justify-content: center;
+        }
+        .sidebar.collapsed .logo-area p {
+            display: none;
+        }
+        .logo-area h2 {
+            font-size: 1.65rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #c084fc, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo-area p {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 0 16px;
+        }
+        .sidebar.collapsed .nav-menu {
+            padding: 0 8px;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 18px;
+            border-radius: 14px;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .sidebar.collapsed .nav-item {
+            padding: 12px 10px;
+            justify-content: center;
+        }
+        .sidebar.collapsed .nav-item span:not(i) {
+            display: none;
+        }
+        .nav-item i {
+            width: 26px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        .nav-item.active {
+            background: #1e293b;
+            color: white;
+            box-shadow: 0 6px 12px -6px rgba(0,0,0,0.3);
+            border-left: 3px solid #3b82f6;
+        }
+        .nav-item:hover:not(.active) {
+            background: #1e293b80;
+            color: #f8fafc;
+            transform: translateX(4px);
+        }
+
+        /* ========= MAIN CONTENT ========= */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px 36px;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+        .page-header h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e293b, #2d3a4e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .page-header p {
+            color: #475569;
+            font-size: 0.9rem;
+            margin-top: 6px;
+        }
+
+        /* Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 36px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 28px;
+            padding: 20px 22px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f8;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+        .stat-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            font-weight: 700;
+            color: #5b6e8c;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .stat-number {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #0f2b3d;
+        }
+        .stat-trend {
+            font-size: 0.75rem;
+            margin-top: 12px;
+        }
+        .trend-up {
+            color: #10b981;
+            background: #e9f9f0;
+            padding: 2px 12px;
+            border-radius: 40px;
+            display: inline-block;
+            font-weight: 600;
+        }
+        .trend-down {
+            color: #ef4444;
+            background: #fee9e9;
+            padding: 2px 12px;
+            border-radius: 40px;
+        }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 28px;
+            margin-bottom: 32px;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 28px;
+            padding: 20px 24px;
+            border: 1px solid #edf2f7;
+        }
+        .chart-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        canvas {
+            max-height: 260px;
+            width: 100%;
+        }
+        .ranking-list {
+            background: white;
+            border-radius: 28px;
+            padding: 20px 24px;
+            border: 1px solid #edf2f7;
+        }
+        .ranking-list h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .rank-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        .rank-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .rank-number {
+            font-weight: 700;
+            width: 30px;
+            color: #3b6e9e;
+        }
+        .rank-value {
+            font-weight: 700;
+            color: #2563eb;
+        }
+
+        .section-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .section-content.active-section {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        .matriculas-special-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 28px;
+            margin: 32px 0;
+        }
+        .matriculas-card-large {
+            background: white;
+            border-radius: 32px;
+            padding: 28px 32px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            border: 1px solid #edf2f7;
+        }
+        .matriculas-card-large:hover {
+            transform: translateY(-4px);
+        }
+        .matriculas-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            color: #5b6e8c;
+            margin-bottom: 16px;
+        }
+        .matriculas-valor-principal {
+            font-size: 3.8rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -1px;
+        }
+        .matriculas-desc {
+            font-size: 0.9rem;
+            color: #3b4e6b;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .trend-badge-up {
+            background: #e6f7ec;
+            color: #0e7c32;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .info-chip {
+            background: #f1f5f9;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .double-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 28px;
+            margin-top: 20px;
+        }
+        .pcd-highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 28px;
+            padding: 24px;
+            margin-top: 24px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 48px;
+            font-size: 0.7rem;
+            color: #7c8ba0;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 24px;
+        }
+
+        @media (max-width: 1100px) {
+            .stats-grid { grid-template-columns: repeat(2,1fr); }
+            .charts-row { grid-template-columns: 1fr; }
+            .matriculas-special-grid { grid-template-columns: 1fr; }
+            .double-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 700px) {
+            body { flex-direction: column; height: auto; overflow: visible; }
+            .sidebar { width: 100%; flex-direction: row; height: auto; }
+            .sidebar.collapsed { width: 100%; }
+            .sidebar-toggle { display: none; }
+            .logo-area { display: none; }
+            .nav-menu { display: flex; flex-direction: row; overflow-x: auto; gap: 4px; padding: 8px; }
+            .nav-item span:not(i) { display: inline-block !important; font-size: 0.75rem; }
+            .nav-item { padding: 8px 12px; }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🍔 Cardápio Digital - Modo Teste</h1>
-    <p>Selecione uma mesa para acessar:</p>
-    
-    <!-- Botões diretos -->
-    <a href="entrada.html?mesa=1" class="mesa-btn">Mesa 1</a>
-    <a href="entrada.html?mesa=2" class="mesa-btn">Mesa 2</a>
-    <a href="entrada.html?mesa=3" class="mesa-btn">Mesa 3</a>
-    
-    <!-- Ou digitar qualquer mesa -->
-    <div style="margin-top: 30px;">
-      <h3>Ou digite qualquer número:</h3>
-      <input type="number" id="mesaInput" placeholder="Número da mesa" min="1" value="1">
-      <button onclick="acessarMesa()" class="mesa-btn">Acessar Cardápio</button>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-toggle" id="toggleSidebar">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+        <div class="logo-area">
+            <h2><i class="fas fa-chalkboard-user"></i> CensoEscolar</h2>
+            <p>Ibiapina · CE | Gestão Transparente</p>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item active" data-section="dashboard"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></div>
+            <div class="nav-item" data-section="matriculas"><i class="fas fa-edit"></i> <span>Matrículas</span></div>
+            <div class="nav-item" data-section="comparativos"><i class="fas fa-chart-line"></i> <span>Comparativos</span></div>
+            <div class="nav-item" data-section="distribuicao"><i class="fas fa-chart-pie"></i> <span>Distribuição</span></div>
+            <div class="nav-item" data-section="pcd"><i class="fas fa-universal-access"></i> <span>PCD</span></div>
+            <div class="nav-item" data-section="estadual"><i class="fas fa-building"></i> <span>Estadual</span></div>
+            <div class="nav-item" data-section="result"><i class="fas fa-chart-simple"></i> <span>Result</span></div>
+            <div class="nav-item" data-section="exception"><i class="fas fa-exclamation-triangle"></i> <span>Exception</span></div>
+        </div>
     </div>
-    
-    <p style="margin-top: 30px; font-size: 14px; color: #ccc;">
-      <strong>Modo de teste ativado</strong><br>
-      QR Code desabilitado temporariamente
-    </p>
-  </div>
 
-  <script>
-    function acessarMesa() {
-      const mesa = document.getElementById('mesaInput').value || '1';
-      window.location.href = `entrada.html?mesa=${mesa}`;
-    }
-  </script>
+    <div class="main-content">
+        <!-- DASHBOARD PRINCIPAL -->
+        <div id="dashboard" class="section-content active-section">
+            <div class="page-header">
+                <h1>📊 Censo Educacional 2024–2026</h1>
+                <p>Município de Ibiapina (CE) — dados oficiais por etapa, zona e inclusão</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-title"><i class="fas fa-calendar-alt"></i> Matrículas 2024</div><div class="stat-number">4.481</div><div class="stat-trend"><span class="trend-up">Municipal</span></div></div>
+                <div class="stat-card"><div class="stat-title"><i class="fas fa-calendar-check"></i> Matrículas 2025</div><div class="stat-number">4.585</div><div class="stat-trend"><span class="trend-up"><i class="fas fa-arrow-up"></i> +104</span></div></div>
+                <div class="stat-card"><div class="stat-title"><i class="fas fa-universal-access"></i> Alunos PCD 2025</div><div class="stat-number">278</div><div class="stat-trend"><span class="trend-up">Inclusão</span></div></div>
+                <div class="stat-card"><div class="stat-title"><i class="fas fa-chart-line"></i> Projeção 2026</div><div class="stat-number">4.535</div><div class="stat-trend"><span class="trend-down">▼ -50</span></div></div>
+            </div>
+
+            <div class="charts-row">
+                <div class="chart-card"><h3><i class="fas fa-chart-column"></i> Evolução 2024 → 2025 → 2026</h3><canvas id="evolucaoChart" height="250"></canvas></div>
+                <div class="chart-card"><h3><i class="fas fa-arrows-left-right"></i> Urbano vs Rural · 2024</h3><canvas id="urbanoRuralChart" height="250"></canvas></div>
+            </div>
+
+            <div class="charts-row">
+                <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Distribuição 2025 por etapa</h3><canvas id="pie2025Chart" height="240"></canvas></div>
+                <div class="ranking-list"><h3><i class="fas fa-chart-line"></i> Variação 2024→2025</h3>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Anos Iniciais</span></div><div class="rank-value" style="color:#10b981;">+62</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Anos Finais</span></div><div class="rank-value" style="color:#10b981;">+74</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Pré-escola</span></div><div class="rank-value" style="color:#10b981;">+48</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Creche</span></div><div class="rank-value" style="color:#10b981;">+4</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▼</span><span class="rank-name">EJA</span></div><div class="rank-value" style="color:#e11d48;">-84</div></div>
+                </div>
+            </div>
+            <footer>Fonte: Censo Escolar 2024/2025/2026 — Ibiapina (CE) · SME</footer>
+        </div>
+
+        <!-- MATRÍCULAS -->
+        <div id="matriculas" class="section-content">
+            <div class="page-header"><h1><i class="fas fa-edit"></i> Painel de Matrículas</h1><p>Dados consolidados municipais</p></div>
+            <div class="matriculas-special-grid">
+                <div class="matriculas-card-large"><div class="matriculas-label">MATRÍCULAS 2024</div><div class="matriculas-valor-principal">4.481</div><div class="matriculas-desc"><i class="fas fa-building"></i> Municipal Urbana: 2.079 <br> <i class="fas fa-tree"></i> Municipal Rural: 2.402</div></div>
+                <div class="matriculas-card-large"><div class="matriculas-label">MATRÍCULAS 2025</div><div class="matriculas-valor-principal">4.585</div><div class="matriculas-desc"><span class="trend-badge-up"><i class="fas fa-arrow-up"></i> +104 alunos</span> <span class="info-chip">Transferidos: 118 | Desistentes: 36 | Falecidos: 1</span></div></div>
+                <div class="matriculas-card-large"><div class="matriculas-label">ZONA URBANA 2024</div><div class="matriculas-valor-principal">2.079</div><div class="matriculas-desc">Creche: 343 | Pré: 307 | Anos Iniciais: 654 | Anos Finais: 697 | EJA: 78</div></div>
+                <div class="matriculas-card-large"><div class="matriculas-label">ZONA RURAL 2024</div><div class="matriculas-valor-principal">2.402</div><div class="matriculas-desc">Creche: 246 | Pré: 351 | Anos Iniciais: 879 | Anos Finais: 569 | EJA: 357</div></div>
+            </div>
+            <div class="double-grid">
+                <div class="chart-card"><h3><i class="fas fa-chart-simple"></i> Matrículas 2025 por etapa</h3><canvas id="matriculas2025Bar" height="240"></canvas></div>
+                <div class="ranking-list"><h3><i class="fas fa-school"></i> Resumo 2025</h3>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">🍼</span><span class="rank-name">Creche</span></div><div class="rank-value">593</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">🎨</span><span class="rank-name">Pré-escola</span></div><div class="rank-value">706</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📘</span><span class="rank-name">Anos Iniciais</span></div><div class="rank-value">1.595</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📗</span><span class="rank-name">Anos Finais</span></div><div class="rank-value">1.340</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📖</span><span class="rank-name">EJA</span></div><div class="rank-value">351</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📌</span><span class="rank-name"><strong>TOTAL</strong></span></div><div class="rank-value"><strong>4.585</strong></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPARATIVOS -->
+        <div id="comparativos" class="section-content">
+            <div class="page-header"><h1><i class="fas fa-chart-line"></i> Comparativo 2024 × 2025</h1></div>
+            <div class="charts-row">
+                <div class="chart-card"><h3>📊 Comparativo por etapa</h3><canvas id="comparativoBarChart" height="250"></canvas></div>
+                <div class="ranking-list"><h3><i class="fas fa-exchange-alt"></i> Movimentação</h3>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📤</span><span class="rank-name">Transferidos 2024</span></div><div class="rank-value">113</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📤</span><span class="rank-name">Transferidos 2025</span></div><div class="rank-value">118</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">⚠️</span><span class="rank-name">Desistentes 2024</span></div><div class="rank-value">44</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">⚠️</span><span class="rank-name">Desistentes 2025</span></div><div class="rank-value">36</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">⚰️</span><span class="rank-name">Falecidos 2025</span></div><div class="rank-value">1</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DISTRIBUIÇÃO 2025 -->
+        <div id="distribuicao" class="section-content">
+            <div class="page-header"><h1><i class="fas fa-chart-pie"></i> Distribuição 2025 por etapa</h1></div>
+            <div style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; margin: 20px 0;">
+                <canvas id="doughnut2025" width="350" height="350" style="max-width: 300px; max-height: 300px;"></canvas>
+                <div style="background: white; border-radius: 28px; padding: 24px;">
+                    <h3>📌 Percentuais 2025</h3>
+                    <ul style="list-style: none;">
+                        <li><span style="background:#4b7ba0; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> Creche: 593 (12,9%)</li>
+                        <li><span style="background:#6f9e7f; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> Pré-escola: 706 (15,4%)</li>
+                        <li><span style="background:#c9a26c; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> Anos Iniciais: 1.595 (34,8%)</li>
+                        <li><span style="background:#ac7c5c; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> Anos Finais: 1.340 (29,2%)</li>
+                        <li><span style="background:#8c7a6b; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> EJA: 351 (7,7%)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO PCD (Educação Especial) -->
+        <div id="pcd" class="section-content">
+            <div class="page-header"><h1><i class="fas fa-universal-access"></i> Alunos com Deficiência (PCD)</h1><p>Educação Especial - Inclusão escolar</p></div>
+            <div class="matriculas-special-grid">
+                <div class="matriculas-card-large"><div class="matriculas-label">TOTAL PCD</div><div class="matriculas-valor-principal">278</div><div class="matriculas-desc">Municipal Urbana: 158 | Municipal Rural: 120</div></div>
+                <div class="matriculas-card-large"><div class="matriculas-label">DISTRIBUIÇÃO PCD</div><div class="matriculas-valor-principal">Por etapa</div><div class="matriculas-desc">Creche: 19 | Pré: 56 | Anos Iniciais: 104 | Anos Finais: 83 | EJA: 16</div></div>
+            </div>
+            <div class="chart-card"><h3><i class="fas fa-chart-bar"></i> Alunos PCD por etapa (2025)</h3><canvas id="pcdChart" height="250"></canvas></div>
+            <div class="pcd-highlight">
+                <i class="fas fa-heart"></i> <strong>Inclusão Escolar:</strong> 278 alunos com deficiência inclusos na rede municipal, representando 6,1% do total de matrículas.
+            </div>
+        </div>
+
+        <!-- SEÇÃO ESTADUAL -->
+        <div id="estadual" class="section-content">
+            <div class="page-header"><h1><i class="fas fa-building"></i> Rede Estadual</h1><p>Dados da dependência administrativa estadual</p></div>
+            <div class="matriculas-special-grid">
+                <div class="matriculas-card-large"><div class="matriculas-label">ESTADUAL URBANA</div><div class="matriculas-valor-principal">965</div><div class="matriculas-desc">Ensino Médio (parcial)</div></div>
+                <div class="matriculas-card-large"><div class="matriculas-label">ESTADUAL RURAL</div><div class="matriculas-valor-principal">0</div><div class="matriculas-desc">Sem unidades rurais estaduais</div></div>
+            </div>
+            <div class="double-grid">
+                <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Total Geral (Estadual + Municipal)</h3><canvas id="totalGeralPie" height="240"></canvas></div>
+                <div class="ranking-list"><h3><i class="fas fa-database"></i> Resumo 2025</h3>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">🏛️</span><span class="rank-name">Estadual</span></div><div class="rank-value">965</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">🏫</span><span class="rank-name">Municipal</span></div><div class="rank-value">4.585</div></div>
+                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📊</span><span class="rank-name"><strong>TOTAL GERAL</strong></span></div><div class="rank-value"><strong>5.550</strong></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULT -->
+        <div id="result" class="section-content">
+            <div class="page-header"><h1>🏆 Resultados e Metas</h1></div>
+            <div class="matriculas-card-large" style="text-align:center;">
+                <i class="fas fa-trophy" style="font-size:3rem; color:#f59e0b;"></i>
+                <h2>Crescimento 2024→2025: +2,3%</h2>
+                <p>✅ Anos Iniciais e Finais em expansão<br>📉 Desafio: EJA com redução de 84 matrículas (-19,3%)<br>🎯 Meta 2026: Estabilização com 4.535 matrículas</p>
+                <div class="info-chip">Taxa de desistência reduziu de 0,98% para 0,78%</div>
+            </div>
+        </div>
+
+        <!-- EXCEPTION -->
+        <div id="exception" class="section-content">
+            <div class="page-header"><h1>⚠️ Alertas e Exceções</h1></div>
+            <div class="matriculas-card-large">
+                <i class="fas fa-exclamation-triangle" style="font-size:2rem; color:#e11d48;"></i>
+                <h3>Queda na EJA Fundamental</h3>
+                <p>Redução de 84 matrículas (-19,3%) entre 2024 e 2025. Necessidade de campanhas de reingresso e flexibilização de horários.</p>
+                <hr>
+                <p><i class="fas fa-chart-line"></i> Projeção 2026: EJA com 390 matrículas (leve recuperação)</p>
+                <p><i class="fas fa-building"></i> Rede estadual atende 965 alunos do Ensino Médio na zona urbana.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // TOGGLE SIDEBAR
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleSidebar');
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            const icon = toggleBtn.querySelector('i');
+            if(sidebar.classList.contains('collapsed')) {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
+        });
+
+        // NAVEGAÇÃO
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = {
+            dashboard: document.getElementById('dashboard'),
+            matriculas: document.getElementById('matriculas'),
+            comparativos: document.getElementById('comparativos'),
+            distribuicao: document.getElementById('distribuicao'),
+            pcd: document.getElementById('pcd'),
+            estadual: document.getElementById('estadual'),
+            result: document.getElementById('result'),
+            exception: document.getElementById('exception')
+        };
+        function activateSection(sectionId) {
+            Object.values(sections).forEach(sec => { if(sec) sec.classList.remove('active-section'); });
+            if(sections[sectionId]) sections[sectionId].classList.add('active-section');
+            navItems.forEach(item => {
+                const target = item.getAttribute('data-section');
+                if(target === sectionId) item.classList.add('active');
+                else item.classList.remove('active');
+            });
+        }
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const secId = item.getAttribute('data-section');
+                if(secId && sections[secId]) activateSection(secId);
+            });
+        });
+
+        // DADOS OFICIAIS DA PLANILHA
+        const etapas = ['Creche', 'Pré-escola', 'Anos Iniciais', 'Anos Finais', 'EJA'];
+        const data2024 = [589, 658, 1533, 1266, 435];
+        const data2025 = [593, 706, 1595, 1340, 351];
+        const data2026 = [1185, null, 2960, null, 390];
+        
+        const urbano = [343, 307, 654, 697, 78];
+        const rural = [246, 351, 879, 569, 357];
+        
+        const pcdData = [19, 56, 104, 83, 16];
+
+        // GRÁFICOS
+        new Chart(document.getElementById('evolucaoChart'), {
+            type: 'bar',
+            data: { labels: etapas, datasets: [
+                { label: '2024', data: data2024, backgroundColor: '#92adc2' },
+                { label: '2025', data: data2025, backgroundColor: '#2c6e9e' },
+                { label: '2026 (proj)', data: [1185, 0, 2960, 0, 390], backgroundColor: '#a855f7' }
+            ]}
+        });
+
+        new Chart(document.getElementById('urbanoRuralChart'), {
+            type: 'bar',
+            data: { labels: etapas, datasets: [
+                { label: 'Zona Urbana', data: urbano, backgroundColor: '#6f9e7f' },
+                { label: 'Zona Rural', data: rural, backgroundColor: '#c99e6f' }
+            ]}
+        });
+
+        new Chart(document.getElementById('pie2025Chart'), {
+            type: 'pie',
+            data: { labels: ['Creche (593)', 'Pré (706)', 'Anos Iniciais (1595)', 'Anos Finais (1340)', 'EJA (351)'],
+                    datasets: [{ data: [593,706,1595,1340,351], backgroundColor: ['#4b7ba0','#6f9e7f','#c9a26c','#ac7c5c','#8c7a6b'] }] }
+        });
+
+        new Chart(document.getElementById('matriculas2025Bar'), {
+            type: 'bar',
+            data: { labels: etapas, datasets: [{ label: 'Matrículas 2025', data: data2025, backgroundColor: '#3b82f6' }] }
+        });
+
+        new Chart(document.getElementById('comparativoBarChart'), {
+            type: 'bar',
+            data: { labels: etapas, datasets: [
+                { label: '2024', data: data2024, backgroundColor: '#92adc2' },
+                { label: '2025', data: data2025, backgroundColor: '#2c6e9e' }
+            ]}
+        });
+
+        new Chart(document.getElementById('doughnut2025'), {
+            type: 'doughnut',
+            data: { labels: etapas, datasets: [{ data: data2025, backgroundColor: ['#4b7ba0','#6f9e7f','#c9a26c','#ac7c5c','#8c7a6b'] }] },
+            options: { cutout: '55%' }
+        });
+
+        new Chart(document.getElementById('pcdChart'), {
+            type: 'bar',
+            data: { labels: etapas, datasets: [{ label: 'Alunos PCD', data: pcdData, backgroundColor: '#667eea', borderRadius: 8 }] }
+        });
+
+        new Chart(document.getElementById('totalGeralPie'), {
+            type: 'pie',
+            data: { labels: ['Municipal (4.585)', 'Estadual (965)'], datasets: [{ data: [4585, 965], backgroundColor: ['#2c6e9e', '#a855f7'] }] }
+        });
+    </script>
 </body>
 </html>
