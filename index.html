@@ -1,807 +1,854 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Censo Escolar Ibiapina | Dashboard Oficial</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turmas Avaliadas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root {
+      --primary: #814BE7;
+      --primary-light: #C17BFD;
+      --secondary: #5C7CFA;
+      --accent: #34C563;
+      --bg: #F7F7F7;
+      --card-bg: #FFFFFF;
+      --text: #1F1F24;
+      --text-muted: #6E7191;
+      --border: #E2E4ED;
+      --success: #34C563;
+      --danger: #E73B4F;
+      --warning: #D4A740;
+      --radius: 12px;
+      --shadow: 0 0 0 1px var(--border), 0 2px 8px rgba(7,2,23,0.05);
+      --shadow-hover: 0 0 0 1px var(--border), 0 4px 16px rgba(7,2,23,0.10);
+      --font: 'Open Sans', system-ui, -apple-system, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not(.light) {
+        --bg: #1E2235;
+        --card-bg: #2D3148;
+        --text: #E2E4ED;
+        --text-muted: #A2A7BD;
+        --border: #484D66;
+        --shadow: 0 0 0 1px var(--border), 0 2px 8px rgba(7,2,23,0.15);
+        --shadow-hover: 0 0 0 1px var(--border), 0 4px 16px rgba(7,2,23,0.25);
+      }
+    }
+    :root.dark {
+      --bg: #1E2235;
+      --card-bg: #2D3148;
+      --text: #E2E4ED;
+      --text-muted: #A2A7BD;
+      --border: #484D66;
+      --shadow: 0 0 0 1px var(--border), 0 2px 8px rgba(7,2,23,0.15);
+      --shadow-hover: 0 0 0 1px var(--border), 0 4px 16px rgba(7,2,23,0.25);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60vh;
+      background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(91,108,249,0.06), transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .dashboard { max-width: 1400px; margin: 0 auto; padding: 24px; position: relative; z-index: 1; }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f1f5f9;
-            color: #0f172a;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 12px;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .header .logo { height: 32px; width: auto; }
+    .title {
+      font-size: 1.9rem;
+      font-weight: 700;
+      line-height: 1.2;
+      background: linear-gradient(135deg, var(--text) 0%, var(--primary) 65%, var(--secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      max-width: 760px;
+    }
 
-        /* ========= SIDEBAR ========= */
-        .sidebar {
-            width: 280px;
-            background: linear-gradient(180deg, #0f172a 0%, #0a0f1c 100%);
-            color: #e2e8f0;
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-            box-shadow: 6px 0 24px rgba(0,0,0,0.12);
-            z-index: 20;
-            transition: width 0.25s ease-in-out;
-            overflow-x: hidden;
-            position: relative;
-        }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 20px;
+    }
+    .col-2  { grid-column: span 2; }
+    .col-3  { grid-column: span 3; }
+    .col-4  { grid-column: span 4; }
+    .col-6  { grid-column: span 6; }
+    .col-8  { grid-column: span 8; }
+    .col-12 { grid-column: span 12; }
+    @media (max-width: 767.98px) {
+      .col-2, .col-3, .col-4, .col-6, .col-8, .col-12 { grid-column: span 12; }
+      .grid { gap: 12px; }
+      .dashboard { padding: 16px; }
+      .kpi-value { font-size: 1.5rem; }
+      .title { font-size: 1.35rem; }
+      .chart-container { min-height: 260px; }
+      .hero-grid { grid-template-columns: 1fr; }
+    }
 
-        .sidebar.collapsed {
-            width: 85px;
-        }
+    .card,
+    .kpi-card,
+    .chart-card,
+    .text-card,
+    .table-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover,
+    .kpi-card:hover,
+    .chart-card:hover,
+    .text-card:hover,
+    .table-card:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-hover);
+    }
+    .card::before,
+    .kpi-card::before,
+    .chart-card::before,
+    .text-card::before,
+    .table-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--primary-light), transparent);
+      opacity: 0.7;
+    }
 
-        .sidebar-toggle {
-            position: absolute;
-            top: 20px;
-            right: -14px;
-            background: #1e293b;
-            width: 32px;
-            height: 32px;
-            border-radius: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 30;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.2);
-            transition: all 0.2s;
-            color: white;
-        }
-        .sidebar-toggle:hover {
-            background: #3b82f6;
-        }
-        .sidebar.collapsed .sidebar-toggle {
-            transform: rotate(180deg);
-        }
+    .kpi-card { padding: 24px; min-height: 152px; }
+    .kpi-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.15;
+      margin-bottom: 6px;
+    }
+    .kpi-subvalue {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      min-height: 22px;
+    }
+    .kpi-delta {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-top: 10px;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .kpi-delta.positive { color: var(--success); background: rgba(52,197,99,0.10); }
+    .kpi-delta.negative { color: var(--danger); background: rgba(231,59,79,0.10); }
+    .kpi-delta.neutral { color: var(--primary); background: rgba(129,75,231,0.10); }
 
-        .logo-area {
-            padding: 32px 24px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            margin-bottom: 28px;
-        }
-        .sidebar.collapsed .logo-area {
-            padding: 32px 12px;
-            text-align: center;
-        }
-        .sidebar.collapsed .logo-area h2 {
-            font-size: 1.2rem;
-            justify-content: center;
-        }
-        .sidebar.collapsed .logo-area p {
-            display: none;
-        }
-        .logo-area h2 {
-            font-size: 1.65rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #c084fc, #3b82f6);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .logo-area p {
-            font-size: 0.7rem;
-            color: #94a3b8;
-            margin-top: 8px;
-        }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .card-caption {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: -4px;
+      margin-bottom: 14px;
+    }
+    .chart-container { min-height: 320px; width: 100%; }
+    .chart-card.tall .chart-container { min-height: 380px; }
 
-        .nav-menu {
-            flex: 1;
-            padding: 0 16px;
-        }
-        .sidebar.collapsed .nav-menu {
-            padding: 0 8px;
-        }
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 18px;
-            border-radius: 14px;
-            margin-bottom: 8px;
-            color: #cbd5e1;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        .sidebar.collapsed .nav-item {
-            padding: 12px 10px;
-            justify-content: center;
-        }
-        .sidebar.collapsed .nav-item span:not(i) {
-            display: none;
-        }
-        .nav-item i {
-            width: 26px;
-            font-size: 1.2rem;
-            text-align: center;
-        }
-        .nav-item.active {
-            background: #1e293b;
-            color: white;
-            box-shadow: 0 6px 12px -6px rgba(0,0,0,0.3);
-            border-left: 3px solid #3b82f6;
-        }
-        .nav-item:hover:not(.active) {
-            background: #1e293b80;
-            color: #f8fafc;
-            transform: translateX(4px);
-        }
+    .hero-card {
+      padding: 24px;
+      background: linear-gradient(135deg, rgba(129,75,231,0.12), rgba(92,124,250,0.06));
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+    .hero-copy p {
+      font-size: 0.95rem;
+      color: var(--text);
+      margin-bottom: 10px;
+      line-height: 1.7;
+    }
+    .hero-copy p:last-child { margin-bottom: 0; }
+    .insight-stack {
+      display: grid;
+      gap: 10px;
+    }
+    .insight-pill {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.28);
+      backdrop-filter: blur(8px);
+    }
+    .insight-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .insight-value {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .insight-detail {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
 
-        /* ========= MAIN CONTENT ========= */
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 28px 36px;
-        }
+    .text-card p {
+      font-size: 0.92rem;
+      color: var(--text);
+      margin-bottom: 9px;
+      line-height: 1.65;
+    }
+    .text-card p:last-child { margin-bottom: 0; }
+    .text-list {
+      padding-left: 18px;
+      color: var(--text);
+      display: grid;
+      gap: 8px;
+      font-size: 0.92rem;
+    }
+    .text-list li::marker { color: var(--primary); }
 
-        .page-header {
-            margin-bottom: 32px;
-        }
-        .page-header h1 {
-            font-size: 1.9rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #1e293b, #2d3a4e);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        .page-header p {
-            color: #475569;
-            font-size: 0.9rem;
-            margin-top: 6px;
-        }
+    .table-card { overflow-x: auto; }
+    .table-card table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .table-card th {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 2px solid var(--border);
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .table-card td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: top;
+      word-break: break-word;
+    }
+    .table-card tr:last-child td { border-bottom: none; }
+    .table-card tbody tr:nth-child(even) td { background: rgba(91,108,249,0.02); }
+    .table-card tbody tr:hover td { background: rgba(91,108,249,0.06); }
+    .share-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(129,75,231,0.10);
+      color: var(--primary);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-weight: 600;
+      font-size: 0.78rem;
+      white-space: nowrap;
+    }
 
-        /* Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 24px;
-            margin-bottom: 36px;
-        }
-        .stat-card {
-            background: white;
-            border-radius: 28px;
-            padding: 20px 22px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-            border: 1px solid #eef2f8;
-            transition: transform 0.2s;
-        }
-        .stat-card:hover {
-            transform: translateY(-3px);
-        }
-        .stat-title {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            font-weight: 700;
-            color: #5b6e8c;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .stat-number {
-            font-size: 2.4rem;
-            font-weight: 800;
-            color: #0f2b3d;
-        }
-        .stat-trend {
-            font-size: 0.75rem;
-            margin-top: 12px;
-        }
-        .trend-up {
-            color: #10b981;
-            background: #e9f9f0;
-            padding: 2px 12px;
-            border-radius: 40px;
-            display: inline-block;
-            font-weight: 600;
-        }
-        .trend-down {
-            color: #ef4444;
-            background: #fee9e9;
-            padding: 2px 12px;
-            border-radius: 40px;
-            display: inline-block;
-            font-weight: 600;
-        }
+    .theme-toggle {
+      position: absolute;
+      top: 24px;
+      right: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 1rem;
+      line-height: 1;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .theme-toggle:hover { color: var(--text); border-color: var(--primary-light); }
+    .theme-toggle .icon-sun,
+    .theme-toggle .icon-moon { display: none; }
+    .theme-toggle .icon-sun { display: inline; }
+    :root.dark .theme-toggle .icon-sun { display: none; }
+    :root.dark .theme-toggle .icon-moon { display: inline; }
+    @media (prefers-color-scheme: dark) {
+      :root:not(.light) .theme-toggle .icon-sun { display: none; }
+      :root:not(.light) .theme-toggle .icon-moon { display: inline; }
+      .insight-pill { background: rgba(45,49,72,0.62); }
+      .hero-card { background: linear-gradient(135deg, rgba(129,75,231,0.18), rgba(92,124,250,0.08)); }
+    }
 
-        .charts-row {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 28px;
-            margin-bottom: 32px;
-        }
-        .chart-card {
-            background: white;
-            border-radius: 28px;
-            padding: 20px 24px;
-            border: 1px solid #edf2f7;
-        }
-        .chart-card h3 {
-            font-size: 1rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        canvas {
-            max-height: 260px;
-            width: 100%;
-        }
-        .ranking-list {
-            background: white;
-            border-radius: 28px;
-            padding: 20px 24px;
-            border: 1px solid #edf2f7;
-        }
-        .ranking-list h3 {
-            font-size: 1rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .rank-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f2f5;
-        }
-        .rank-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .rank-number {
-            font-weight: 700;
-            width: 30px;
-            color: #3b6e9e;
-        }
-        .rank-value {
-            font-weight: 700;
-            color: #2563eb;
-        }
-
-        .section-content {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-        .section-content.active-section {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px);}
-            to { opacity: 1; transform: translateY(0);}
-        }
-
-        .matriculas-special-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 28px;
-            margin: 32px 0;
-        }
-        .matriculas-card-large {
-            background: white;
-            border-radius: 32px;
-            padding: 28px 32px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-            border: 1px solid #edf2f7;
-        }
-        .matriculas-card-large:hover {
-            transform: translateY(-4px);
-        }
-        .matriculas-label {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 700;
-            color: #5b6e8c;
-            margin-bottom: 16px;
-        }
-        .matriculas-valor-principal {
-            font-size: 3.8rem;
-            font-weight: 800;
-            color: #0f172a;
-            letter-spacing: -1px;
-        }
-        .matriculas-desc {
-            font-size: 0.9rem;
-            color: #3b4e6b;
-            margin-top: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .trend-badge-up {
-            background: #e6f7ec;
-            color: #0e7c32;
-            padding: 4px 12px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.8rem;
-        }
-        .info-chip {
-            background: #f1f5f9;
-            padding: 4px 14px;
-            border-radius: 40px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-        .double-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 28px;
-            margin-top: 20px;
-        }
-        .total-card {
-            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-            color: white;
-            border-radius: 28px;
-            padding: 28px;
-            text-align: center;
-        }
-        .total-card h3 {
-            font-size: 1.2rem;
-            margin-bottom: 12px;
-        }
-        .total-number {
-            font-size: 3.5rem;
-            font-weight: 800;
-        }
-        .pcd-card {
-            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-            color: white;
-            border-radius: 28px;
-            padding: 28px;
-            text-align: center;
-        }
-        footer {
-            text-align: center;
-            margin-top: 48px;
-            font-size: 0.7rem;
-            color: #7c8ba0;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 24px;
-        }
-
-        @media (max-width: 1100px) {
-            .stats-grid { grid-template-columns: repeat(2,1fr); }
-            .charts-row { grid-template-columns: 1fr; }
-            .matriculas-special-grid { grid-template-columns: 1fr; }
-            .double-grid { grid-template-columns: 1fr; }
-        }
-        @media (max-width: 700px) {
-            body { flex-direction: column; height: auto; overflow: visible; }
-            .sidebar { width: 100%; flex-direction: row; height: auto; }
-            .sidebar.collapsed { width: 100%; }
-            .sidebar-toggle { display: none; }
-            .logo-area { display: none; }
-            .nav-menu { display: flex; flex-direction: row; overflow-x: auto; gap: 4px; padding: 8px; }
-            .nav-item span:not(i) { display: inline-block !important; font-size: 0.75rem; }
-            .nav-item { padding: 8px 12px; }
-        }
-    </style>
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .footer .logo-sm { height: 18px; width: auto; }
+  </style>
 </head>
 <body>
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-toggle" id="toggleSidebar">
-            <i class="fas fa-chevron-left"></i>
+  <div class="dashboard">
+    <header class="header">
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema">
+        <span class="icon-sun">&#9788;</span>
+        <span class="icon-moon">&#9790;</span>
+      </button>
+      <img class="logo" src="https://www.energent.ai/images/logos/svg/energent-logo.svg" alt="Energent logo">
+      <div>
+        <h1 class="title">Turmas Avaliadas</h1>
+        <p class="subtitle">Painel demográfico das listas consolidadas de alunos, com foco em volume por escola sede, distribuição por ano escolar e situação das matrículas.</p>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="col-3">
+        <div class="kpi-card">
+          <div class="kpi-label">Registros listados</div>
+          <div class="kpi-value" id="kpi-total-rows">0</div>
+          <div class="kpi-subvalue">Entradas consolidadas no CSV</div>
+          <div class="kpi-delta neutral"><span id="kpi-school-count">0</span> escolas sede</div>
         </div>
-        <div class="logo-area">
-            <h2><i class="fas fa-chalkboard-user"></i> CensoEscolar</h2>
-            <p>Ibiapina · CE | Gestão Transparente</p>
+      </div>
+      <div class="col-3">
+        <div class="kpi-card">
+          <div class="kpi-label">Anos escolares</div>
+          <div class="kpi-value" id="kpi-grade-count">0</div>
+          <div class="kpi-subvalue">Faixas presentes no conjunto</div>
+          <div class="kpi-delta neutral">2º, 5º e 9º ano</div>
         </div>
-        <div class="nav-menu">
-            <div class="nav-item active" data-section="dashboard"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></div>
-            <div class="nav-item" data-section="matriculas"><i class="fas fa-edit"></i> <span>Matrículas</span></div>
-            <div class="nav-item" data-section="comparativos"><i class="fas fa-chart-line"></i> <span>Comparativos</span></div>
-            <div class="nav-item" data-section="distribuicao"><i class="fas fa-chart-pie"></i> <span>Distribuição</span></div>
-            <div class="nav-item" data-section="pcd"><i class="fas fa-universal-access"></i> <span>PCD</span></div>
-            <div class="nav-item" data-section="movimentacao"><i class="fas fa-exchange-alt"></i> <span>Movimentação</span></div>
-            <div class="nav-item" data-section="result"><i class="fas fa-chart-simple"></i> <span>Resultado</span></div>
+      </div>
+      <div class="col-3">
+        <div class="kpi-card">
+          <div class="kpi-label">Matrículas ativas</div>
+          <div class="kpi-value" id="kpi-active-count">0</div>
+          <div class="kpi-subvalue">Status predominante no dataset</div>
+          <div class="kpi-delta positive" id="kpi-active-share">0,0% do total</div>
         </div>
+      </div>
+      <div class="col-3">
+        <div class="kpi-card">
+          <div class="kpi-label">Transferidos</div>
+          <div class="kpi-value" id="kpi-transfer-count">0</div>
+          <div class="kpi-subvalue">Registros com movimentação</div>
+          <div class="kpi-delta negative" id="kpi-transfer-share">0,0% do total</div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="text-card hero-card">
+          <div class="card-title">Leitura executiva</div>
+          <div class="hero-grid">
+            <div class="hero-copy">
+              <p>O conjunto reúne <strong id="hero-total"></strong> registros distribuídos em <strong id="hero-school-count"></strong> escolas sede e <strong id="hero-grade-count"></strong> anos escolares. O objetivo do painel é mostrar a composição das turmas avaliadas a partir das listas recebidas, sem métricas de desempenho acadêmico.</p>
+              <p>A maior concentração está em <strong id="hero-top-school"></strong>, com <strong id="hero-top-school-count"></strong> registros. Entre os anos escolares, <strong id="hero-top-grade"></strong> tem a maior presença relativa, reforçando um perfil de cobertura mais forte nas séries intermediárias do conjunto.</p>
+              <p>O status de matrícula é majoritariamente ativo, enquanto os poucos registros transferidos aparecem como exceção. Assim, a leitura principal é de distribuição de cobertura entre escolas e séries, e não de evasão ou rotatividade.</p>
+            </div>
+            <div class="insight-stack">
+              <div class="insight-pill">
+                <div class="insight-label">Escola com maior volume</div>
+                <div class="insight-value" id="insight-top-school"></div>
+                <div class="insight-detail"><span id="insight-top-school-count"></span> registros · <span id="insight-top-school-share"></span></div>
+              </div>
+              <div class="insight-pill">
+                <div class="insight-label">Ano escolar mais frequente</div>
+                <div class="insight-value" id="insight-top-grade"></div>
+                <div class="insight-detail"><span id="insight-top-grade-count"></span> registros · <span id="insight-top-grade-share"></span></div>
+              </div>
+              <div class="insight-pill">
+                <div class="insight-label">Composição do status</div>
+                <div class="insight-value" id="insight-status"></div>
+                <div class="insight-detail">Ativos representam quase toda a base consolidada.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="chart-card tall">
+          <div class="card-title">Total de alunos por escola sede</div>
+          <div class="card-caption">Contagem de registros por unidade consolidada, ordenada do maior para o menor volume.</div>
+          <div class="chart-container" id="chart-school-count"></div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="chart-card">
+          <div class="card-title">Distribuição de alunos por ano escolar</div>
+          <div class="card-caption">Comparação entre 2º, 5º e 9º ano, mostrando volume absoluto e participação no total.</div>
+          <div class="chart-container" id="chart-grade-distribution"></div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="chart-card">
+          <div class="card-title">Status das matrículas</div>
+          <div class="card-caption">Predominância de matrículas ativas em relação aos poucos registros transferidos.</div>
+          <div class="chart-container" id="chart-status"></div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="chart-card tall">
+          <div class="card-title">Cobertura por escola sede e ano escolar</div>
+          <div class="card-caption">Mapa de calor para identificar em quais séries cada escola sede concentra suas turmas avaliadas.</div>
+          <div class="chart-container" id="chart-school-grade-heatmap"></div>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="table-card">
+          <div class="card-title">Resumo por escola sede</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Escola sede</th>
+                <th>Registros</th>
+                <th>Participação</th>
+                <th>Anos presentes</th>
+              </tr>
+            </thead>
+            <tbody id="school-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="text-card">
+          <div class="card-title">Como interpretar este painel</div>
+          <ul class="text-list">
+            <li>Os totais representam registros consolidados do arquivo CSV informado, adequados para leitura demográfica das turmas.</li>
+            <li>O gráfico por escola sede mostra onde estão concentradas as listas avaliadas e facilita identificar o peso relativo de cada unidade.</li>
+            <li>A distribuição por ano escolar resume a cobertura entre séries, enquanto o mapa de calor destaca quais escolas aparecem em cada ano.</li>
+            <li>O status de matrícula indica baixa movimentação na base consolidada, com apenas uma parcela residual fora do status ativo.</li>
+          </ul>
+        </div>
+      </div>
     </div>
 
-    <div class="main-content">
-        <!-- DASHBOARD PRINCIPAL -->
-        <div id="dashboard" class="section-content active-section">
-            <div class="page-header">
-                <h1>📊 Censo Educacional 2024–2025</h1>
-                <p>Município de Ibiapina (CE) — resultados finais com e sem PCD</p>
-            </div>
+    <footer class="footer">
+      <img class="logo-sm" src="https://www.energent.ai/images/logos/svg/energent-logo.svg" alt="Energent logo">
+      <a href="https://www.energent.ai" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">Powered by energent.ai</a>
+    </footer>
+  </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-title"><i class="fas fa-calendar-alt"></i> 2024 sem PCD</div>
-                    <div class="stat-number">4.481</div>
-                    <div class="stat-trend"><span class="trend-up">Base municipal</span></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title"><i class="fas fa-calendar-check"></i> 2025 sem PCD</div>
-                    <div class="stat-number">4.341</div>
-                    <div class="stat-trend"><span class="trend-down">▼ -140 alunos</span></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title"><i class="fas fa-universal-access"></i> PCD 2025</div>
-                    <div class="stat-number">278</div>
-                    <div class="stat-trend"><span class="trend-up">▲ +43 PCD</span></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title"><i class="fas fa-users"></i> Total 2025 c/ PCD</div>
-                    <div class="stat-number">4.619</div>
-                    <div class="stat-trend"><span class="trend-up">Inclusivo</span></div>
-                </div>
-            </div>
+  <script>
+    const summary = {
+      meta: {
+        title: 'Turmas Avaliadas',
+        dataset: '/home/user/Desktop/data/generated_files/dataset_turmas_consolidado.csv',
+        total_rows: 239,
+        school_count: 8,
+        grade_count: 3,
+        active_count: 237,
+        transfer_count: 2,
+        active_share: 99.2,
+        transfer_share: 0.8,
+        duplicate_name_rows: 3
+      },
+      schools: [
+        { school: 'Ludugero Gomes', students: 58, share: 24.3 },
+        { school: 'DOMINGOS FERINO', students: 42, share: 17.6 },
+        { school: 'Ludugero Gomes (1)', students: 28, share: 11.7 },
+        { school: 'Nossa Senhora do Carmo', students: 26, share: 10.9 },
+        { school: 'Presidente Castelo Branco', students: 23, share: 9.6 },
+        { school: 'João Vaz', students: 22, share: 9.2 },
+        { school: 'RAIMUNDO FERREIRA', students: 22, share: 9.2 },
+        { school: 'Dom Bosco', students: 18, share: 7.5 }
+      ],
+      grades: [
+        { grade: '2º ANO', students: 90, share: 37.7 },
+        { grade: '5º ANO', students: 93, share: 38.9 },
+        { grade: '9º ANO', students: 56, share: 23.4 }
+      ],
+      status: [
+        { status: 'Ativo', students: 237, share: 99.2 },
+        { status: 'Transferido', students: 2, share: 0.8 }
+      ],
+      school_grade_matrix: {
+        schools: [
+          'Ludugero Gomes',
+          'DOMINGOS FERINO',
+          'Ludugero Gomes (1)',
+          'Nossa Senhora do Carmo',
+          'Presidente Castelo Branco',
+          'João Vaz',
+          'RAIMUNDO FERREIRA',
+          'Dom Bosco'
+        ],
+        grades: ['2º ANO', '5º ANO', '9º ANO'],
+        z: [
+          [0, 30, 28],
+          [23, 19, 0],
+          [0, 0, 28],
+          [0, 26, 0],
+          [23, 0, 0],
+          [22, 0, 0],
+          [22, 0, 0],
+          [0, 18, 0]
+        ]
+      }
+    };
 
-            <div class="charts-row">
-                <div class="chart-card">
-                    <h3><i class="fas fa-chart-column"></i> Comparativo 2024 × 2025 (sem PCD)</h3>
-                    <canvas id="comparativoChart" height="250"></canvas>
-                </div>
-                <div class="chart-card">
-                    <h3><i class="fas fa-chart-line"></i> Evolução Total com PCD</h3>
-                    <canvas id="evolucaoComPCD" height="250"></canvas>
-                </div>
-            </div>
+    function getEffectiveDark() {
+      const root = document.documentElement;
+      if (root.classList.contains('dark')) return true;
+      if (root.classList.contains('light')) return false;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
 
-            <div class="charts-row">
-                <div class="chart-card">
-                    <h3><i class="fas fa-chart-pie"></i> Distribuição 2025 (sem PCD)</h3>
-                    <canvas id="pie2025Chart" height="240"></canvas>
-                </div>
-                <div class="ranking-list">
-                    <h3><i class="fas fa-arrow-right"></i> Diferença 2024→2025 (sem PCD)</h3>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Creche</span></div><div class="rank-value" style="color:#10b981;">+7</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Pré-escola</span></div><div class="rank-value" style="color:#10b981;">+15</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Anos Iniciais</span></div><div class="rank-value" style="color:#10b981;">+43</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">Anos Finais</span></div><div class="rank-value" style="color:#10b981;">+8</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">▲</span><span class="rank-name">EJA</span></div><div class="rank-value" style="color:#10b981;">+67</div></div>
-                </div>
-            </div>
+    function toggleTheme() {
+      const root = document.documentElement;
+      const currentlyDark = getEffectiveDark();
+      root.classList.remove('dark', 'light');
+      root.classList.add(currentlyDark ? 'light' : 'dark');
+      rebuildCharts();
+    }
 
-            <div class="total-card">
-                <h3><i class="fas fa-chart-line"></i> RESULTADO FINAL 2025 COM PCD</h3>
-                <div class="total-number">4.619</div>
-                <p>alunos matriculados (incluindo 278 PCD)</p>
-            </div>
+    const COLORS = ['#814BE7', '#5C7CFA', '#34C563', '#D4A740', '#E73B4F'];
+    const chartRegistry = [];
 
-            <footer>Fonte: Censo Escolar 2024/2025 — Ibiapina (CE) · SME</footer>
-        </div>
-
-        <!-- MATRÍCULAS -->
-        <div id="matriculas" class="section-content">
-            <div class="page-header">
-                <h1><i class="fas fa-edit"></i> Painel de Matrículas</h1>
-                <p>Resultados finais sem PCD</p>
-            </div>
-
-            <div class="matriculas-special-grid">
-                <div class="matriculas-card-large">
-                    <div class="matriculas-label">RESULTADO 2024</div>
-                    <div class="matriculas-valor-principal">4.481</div>
-                    <div class="matriculas-desc">Creche: 589 | Pré: 658 | Anos Iniciais: 1.533 | Anos Finais: 1.266 | EJA: 435</div>
-                </div>
-                <div class="matriculas-card-large">
-                    <div class="matriculas-label">RESULTADO 2025</div>
-                    <div class="matriculas-valor-principal">4.341</div>
-                    <div class="matriculas-desc">Creche: 582 | Pré: 643 | Anos Iniciais: 1.490 | Anos Finais: 1.258 | EJA: 368</div>
-                </div>
-            </div>
-
-            <div class="double-grid">
-                <div class="chart-card">
-                    <h3><i class="fas fa-chart-simple"></i> Comparativo por etapa</h3>
-                    <canvas id="matriculasComparativoBar" height="240"></canvas>
-                </div>
-                <div class="ranking-list">
-                    <h3><i class="fas fa-database"></i> Totais por ano</h3>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📅</span><span class="rank-name">2024 sem PCD</span></div><div class="rank-value">4.481</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📅</span><span class="rank-name">2025 sem PCD</span></div><div class="rank-value">4.341</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📊</span><span class="rank-name">Variação</span></div><div class="rank-value" style="color:#e11d48;">-140</div></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- COMPARATIVOS -->
-        <div id="comparativos" class="section-content">
-            <div class="page-header">
-                <h1><i class="fas fa-chart-line"></i> Comparativo 2024 × 2025</h1>
-                <p>Diferenças por etapa de ensino (sem PCD)</p>
-            </div>
-
-            <div class="charts-row">
-                <div class="chart-card">
-                    <h3>📊 Diferença por etapa (2025 - 2024)</h3>
-                    <canvas id="diferencaChart" height="250"></canvas>
-                </div>
-                <div class="ranking-list">
-                    <h3><i class="fas fa-chart-simple"></i> Resumo das diferenças</h3>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">1º</span><span class="rank-name">EJA</span></div><div class="rank-value" style="color:#10b981;">+67</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">2º</span><span class="rank-name">Anos Iniciais</span></div><div class="rank-value" style="color:#10b981;">+43</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">3º</span><span class="rank-name">Pré-escola</span></div><div class="rank-value" style="color:#10b981;">+15</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">4º</span><span class="rank-name">Anos Finais</span></div><div class="rank-value" style="color:#10b981;">+8</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">5º</span><span class="rank-name">Creche</span></div><div class="rank-value" style="color:#10b981;">+7</div></div>
-                </div>
-            </div>
-
-            <div class="total-card" style="background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);">
-                <h3>📈 Variação Total (sem PCD)</h3>
-                <div class="total-number" style="font-size: 2.5rem;">4.481 → 4.341</div>
-                <p>▼ Redução de 140 matrículas (-3,1%)</p>
-            </div>
-        </div>
-
-        <!-- DISTRIBUIÇÃO 2025 -->
-        <div id="distribuicao" class="section-content">
-            <div class="page-header">
-                <h1><i class="fas fa-chart-pie"></i> Distribuição 2025</h1>
-                <p>Participação percentual de cada etapa (sem PCD)</p>
-            </div>
-
-            <div style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; margin: 20px 0;">
-                <canvas id="doughnut2025" width="350" height="350" style="max-width: 300px; max-height: 300px;"></canvas>
-                <div style="background: white; border-radius: 28px; padding: 24px;">
-                    <h3>📌 Percentuais 2025</h3>
-                    <ul style="list-style: none;">
-                        <li><span style="background:#4b7ba0; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> Creche: 582 (13,4%)</li>
-                        <li><span style="background:#6f9e7f; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> Pré-escola: 643 (14,8%)</li>
-                        <li><span style="background:#c9a26c; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> Anos Iniciais: 1.490 (34,3%)</li>
-                        <li><span style="background:#ac7c5c; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> Anos Finais: 1.258 (29,0%)</li>
-                        <li><span style="background:#8c7a6b; display:inline-block; width:14px; height:14px; border-radius:50%;"></span> EJA: 368 (8,5%)</li>
-                    </ul>
-                    <hr style="margin: 16px 0;">
-                    <p><strong>Total:</strong> 4.341 alunos</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- PCD -->
-        <div id="pcd" class="section-content">
-            <div class="page-header">
-                <h1><i class="fas fa-universal-access"></i> Alunos com Deficiência (PCD)</h1>
-                <p>Educação Especial - Inclusão escolar</p>
-            </div>
-
-            <div class="matriculas-special-grid">
-                <div class="matriculas-card-large">
-                    <div class="matriculas-label">PCD 2024</div>
-                    <div class="matriculas-valor-principal">235</div>
-                    <div class="matriculas-desc">Creche: 19 | Pré: 49 | Anos Iniciais: 84 | Anos Finais: 72 | EJA: 11</div>
-                </div>
-                <div class="matriculas-card-large">
-                    <div class="matriculas-label">PCD 2025</div>
-                    <div class="matriculas-valor-principal">278</div>
-                    <div class="matriculas-desc">Creche: 19 | Pré: 56 | Anos Iniciais: 104 | Anos Finais: 83 | EJA: 16</div>
-                </div>
-            </div>
-
-            <div class="chart-card">
-                <h3><i class="fas fa-chart-bar"></i> Evolução PCD por etapa (2024 → 2025)</h3>
-                <canvas id="pcdEvolucaoChart" height="250"></canvas>
-            </div>
-
-            <div class="pcd-card" style="margin-top: 24px;">
-                <h3><i class="fas fa-heart"></i> Crescimento da Inclusão</h3>
-                <div class="total-number" style="font-size: 2.5rem;">▲ +43 alunos PCD</div>
-                <p>235 → 278 (+18,3% em relação a 2024)</p>
-            </div>
-        </div>
-
-        <!-- MOVIMENTAÇÃO -->
-        <div id="movimentacao" class="section-content">
-            <div class="page-header">
-                <h1><i class="fas fa-exchange-alt"></i> Movimentação Escolar</h1>
-                <p>Transferências, desistências e falecimentos</p>
-            </div>
-
-            <div class="matriculas-special-grid">
-                <div class="matriculas-card-large">
-                    <div class="matriculas-label">MOVIMENTAÇÃO 2024</div>
-                    <div class="matriculas-valor-principal" style="font-size: 2rem;">Transferências</div>
-                    <div class="matriculas-desc">📤 Transferidos: 113 | ⚠️ Desistentes: 44</div>
-                </div>
-                <div class="matriculas-card-large">
-                    <div class="matriculas-label">MOVIMENTAÇÃO 2025</div>
-                    <div class="matriculas-valor-principal" style="font-size: 2rem;">Transferências</div>
-                    <div class="matriculas-desc">📤 Transferidos: 118 | ⚠️ Desistentes: 36 | ⚰️ Falecidos: 1</div>
-                </div>
-            </div>
-
-            <div class="chart-card">
-                <h3><i class="fas fa-chart-bar"></i> Transferências por etapa (2025)</h3>
-                <canvas id="transferenciasChart" height="250"></canvas>
-            </div>
-
-            <div class="double-grid">
-                <div class="ranking-list">
-                    <h3><i class="fas fa-chart-line"></i> Comparativo Movimentação</h3>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📤</span><span class="rank-name">Transferências 2024</span></div><div class="rank-value">113</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📤</span><span class="rank-name">Transferências 2025</span></div><div class="rank-value">118</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">⚠️</span><span class="rank-name">Desistentes 2024</span></div><div class="rank-value">44</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">⚠️</span><span class="rank-name">Desistentes 2025</span></div><div class="rank-value">36</div></div>
-                </div>
-                <div class="ranking-list">
-                    <h3><i class="fas fa-tag"></i> Transferências 2025 por etapa</h3>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">🍼</span><span class="rank-name">Educação Infantil</span></div><div class="rank-value">42</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📘</span><span class="rank-name">Fundamental I</span></div><div class="rank-value">51</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📗</span><span class="rank-name">Fundamental II</span></div><div class="rank-value">32</div></div>
-                    <div class="rank-item"><div class="rank-left"><span class="rank-number">📖</span><span class="rank-name">EJA</span></div><div class="rank-value">30</div></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- RESULTADO -->
-        <div id="result" class="section-content">
-            <div class="page-header">
-                <h1><i class="fas fa-chart-simple"></i> Resultado Final Consolidado</h1>
-                <p>Visão geral 2024 × 2025</p>
-            </div>
-
-            <div class="double-grid">
-                <div class="total-card" style="background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);">
-                    <h3>📊 SEM PCD</h3>
-                    <div class="total-number" style="font-size: 2rem;">4.481 → 4.341</div>
-                    <p>▼ -140 alunos</p>
-                </div>
-                <div class="total-card" style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);">
-                    <h3>♿ COM PCD</h3>
-                    <div class="total-number" style="font-size: 2rem;">4.716 → 4.619</div>
-                    <p>▼ -97 alunos</p>
-                </div>
-                <div class="total-card" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
-                    <h3>📈 PCD</h3>
-                    <div class="total-number" style="font-size: 2rem;">235 → 278</div>
-                    <p>▲ +43 alunos</p>
-                </div>
-                <div class="total-card" style="background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);">
-                    <h3>🔄 TRANSFERÊNCIAS</h3>
-                    <div class="total-number" style="font-size: 2rem;">113 → 118</div>
-                    <p>▲ +5</p>
-                </div>
-            </div>
-
-            <div class="matriculas-card-large" style="margin-top: 24px; text-align: center;">
-                <i class="fas fa-chart-line" style="font-size: 2rem; color: #f59e0b;"></i>
-                <h3 style="margin-top: 12px;">Taxa de Desistência</h3>
-                <div style="font-size: 1.5rem; font-weight: 700;">0,98% (2024) → 0,83% (2025)</div>
-                <p>Redução de 0,15 pontos percentuais</p>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // TOGGLE SIDEBAR
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('toggleSidebar');
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-            const icon = toggleBtn.querySelector('i');
-            if(sidebar.classList.contains('collapsed')) {
-                icon.classList.remove('fa-chevron-left');
-                icon.classList.add('fa-chevron-right');
-            } else {
-                icon.classList.remove('fa-chevron-right');
-                icon.classList.add('fa-chevron-left');
-            }
-        });
-
-        // NAVEGAÇÃO
-        const navItems = document.querySelectorAll('.nav-item');
-        const sections = {
-            dashboard: document.getElementById('dashboard'),
-            matriculas: document.getElementById('matriculas'),
-            comparativos: document.getElementById('comparativos'),
-            distribuicao: document.getElementById('distribuicao'),
-            pcd: document.getElementById('pcd'),
-            movimentacao: document.getElementById('movimentacao'),
-            result: document.getElementById('result')
-        };
-
-        function activateSection(sectionId) {
-            Object.values(sections).forEach(sec => { if(sec) sec.classList.remove('active-section'); });
-            if(sections[sectionId]) sections[sectionId].classList.add('active-section');
-            navItems.forEach(item => {
-                const target = item.getAttribute('data-section');
-                if(target === sectionId) item.classList.add('active');
-                else item.classList.remove('active');
-            });
+    function getDefaultLayout() {
+      const dark = getEffectiveDark();
+      return {
+        font: { family: 'Open Sans, system-ui, sans-serif', color: dark ? '#E2E4ED' : '#1F1F24' },
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent',
+        autosize: true,
+        margin: { l: 50, r: 30, t: 50, b: 50 },
+        xaxis: { gridcolor: dark ? '#5A5F78' : '#E2E4ED', automargin: true },
+        yaxis: { gridcolor: dark ? '#5A5F78' : '#E2E4ED', automargin: true },
+        colorway: COLORS,
+        legend: { font: { family: 'Open Sans, system-ui, sans-serif', size: 12 } },
+        hoverlabel: {
+          font: { family: 'Open Sans, system-ui, sans-serif', size: 13 },
+          bgcolor: dark ? '#3D4260' : '#FFFFFF',
+          bordercolor: dark ? '#5A5F78' : '#E2E4ED',
+          namelength: -1
         }
+      };
+    }
 
-        navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const secId = item.getAttribute('data-section');
-                if(secId && sections[secId]) activateSection(secId);
-            });
-        });
+    const NESTED_LAYOUT_KEYS = ['xaxis', 'xaxis2', 'yaxis', 'yaxis2', 'margin', 'legend', 'font', 'hoverlabel', 'grid'];
+    function mergeLayouts(base, overrides) {
+      const merged = { ...base, ...overrides };
+      for (const key of NESTED_LAYOUT_KEYS) {
+        if (base[key] && overrides[key] && typeof base[key] === 'object' && typeof overrides[key] === 'object') {
+          merged[key] = { ...base[key], ...overrides[key] };
+        }
+      }
+      return merged;
+    }
 
-        // DADOS OFICIAIS DA PLANILHA RESUMIDA
-        const etapas = ['Creche', 'Pré-escola', 'Anos Iniciais', 'Anos Finais', 'EJA'];
-        const data2024 = [589, 658, 1533, 1266, 435];
-        const data2025 = [582, 643, 1490, 1258, 368];
-        const diferenca = [7, 15, 43, 8, 67];
-        
-        const pcd2024 = [19, 49, 84, 72, 11];
-        const pcd2025 = [19, 56, 104, 83, 16];
-        
-        const transferenciasEtapa = [42, 51, 32, 30];
-        const transferenciasLabels = ['Educação Infantil', 'Fundamental I', 'Fundamental II', 'EJA'];
+    function createChart(id, traces, layoutOverrides = {}) {
+      const CLIP_TYPES = ['scatter', 'scattergl', 'bar', 'waterfall', 'funnel', 'histogram', 'box', 'violin'];
+      const processed = traces.map(t =>
+        t.text && t.textposition && t.cliponaxis === undefined && CLIP_TYPES.includes(t.type || 'scatter')
+          ? { ...t, cliponaxis: false }
+          : t
+      );
+      chartRegistry.push({ id, traces: processed, layoutOverrides });
+      Plotly.newPlot(id, processed, mergeLayouts(getDefaultLayout(), layoutOverrides), { responsive: true, displayModeBar: false });
+    }
 
-        // GRÁFICOS
-        new Chart(document.getElementById('comparativoChart'), {
-            type: 'bar',
-            data: { labels: etapas, datasets: [
-                { label: '2024', data: data2024, backgroundColor: '#2c6e9e', borderRadius: 8 },
-                { label: '2025', data: data2025, backgroundColor: '#e67e22', borderRadius: 8 }
-            ]}
-        });
+    function rebuildCharts() {
+      chartRegistry.forEach(({ id, traces, layoutOverrides }) => {
+        Plotly.react(id, traces, mergeLayouts(getDefaultLayout(), layoutOverrides), { responsive: true, displayModeBar: false });
+      });
+    }
 
-        new Chart(document.getElementById('evolucaoComPCD'), {
-            type: 'line',
-            data: { labels: etapas, datasets: [
-                { label: 'Total com PCD 2024', data: [589+19, 658+49, 1533+84, 1266+72, 435+11], borderColor: '#2c6e9e', tension: 0.2, fill: false },
-                { label: 'Total com PCD 2025', data: [582+19, 643+56, 1490+104, 1258+83, 368+16], borderColor: '#e67e22', tension: 0.2, fill: false }
-            ]}
-        });
+    const fmtInt = value => new Intl.NumberFormat('pt-BR').format(value);
+    const fmtPct = value => value.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
 
-        new Chart(document.getElementById('pie2025Chart'), {
-            type: 'pie',
-            data: { labels: ['Creche (582)', 'Pré (643)', 'Anos Iniciais (1490)', 'Anos Finais (1258)', 'EJA (368)'],
-                    datasets: [{ data: data2025, backgroundColor: ['#4b7ba0','#6f9e7f','#c9a26c','#ac7c5c','#8c7a6b'] }] }
-        });
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    }
 
-        new Chart(document.getElementById('matriculasComparativoBar'), {
-            type: 'bar',
-            data: { labels: etapas, datasets: [
-                { label: '2024', data: data2024, backgroundColor: '#2c6e9e' },
-                { label: '2025', data: data2025, backgroundColor: '#e67e22' }
-            ]}
-        });
+    function renderKpis() {
+      setText('kpi-total-rows', fmtInt(summary.meta.total_rows));
+      setText('kpi-school-count', fmtInt(summary.meta.school_count));
+      setText('kpi-grade-count', fmtInt(summary.meta.grade_count));
+      setText('kpi-active-count', fmtInt(summary.meta.active_count));
+      setText('kpi-active-share', fmtPct(summary.meta.active_share) + ' do total');
+      setText('kpi-transfer-count', fmtInt(summary.meta.transfer_count));
+      setText('kpi-transfer-share', fmtPct(summary.meta.transfer_share) + ' do total');
+    }
 
-        new Chart(document.getElementById('diferencaChart'), {
-            type: 'bar',
-            data: { labels: etapas, datasets: [{ label: 'Diferença (2025 - 2024)', data: diferenca, backgroundColor: '#10b981', borderRadius: 8 }] }
-        });
+    function renderNarrative() {
+      const topSchool = summary.schools[0];
+      const topGrade = summary.grades.slice().sort((a, b) => b.students - a.students)[0];
+      setText('hero-total', fmtInt(summary.meta.total_rows));
+      setText('hero-school-count', fmtInt(summary.meta.school_count));
+      setText('hero-grade-count', fmtInt(summary.meta.grade_count));
+      setText('hero-top-school', topSchool.school);
+      setText('hero-top-school-count', fmtInt(topSchool.students));
+      setText('hero-top-grade', topGrade.grade);
+      setText('hero-top-grade-count', fmtInt(topGrade.students));
+      setText('insight-top-school', topSchool.school);
+      setText('insight-top-school-count', fmtInt(topSchool.students) + ' registros');
+      setText('insight-top-school-share', fmtPct(topSchool.share));
+      setText('insight-top-grade', topGrade.grade);
+      setText('insight-top-grade-count', fmtInt(topGrade.students) + ' registros');
+      setText('insight-top-grade-share', fmtPct(topGrade.share));
+      setText('insight-status', fmtPct(summary.meta.active_share) + ' ativo');
+    }
 
-        new Chart(document.getElementById('doughnut2025'), {
-            type: 'doughnut',
-            data: { labels: etapas, datasets: [{ data: data2025, backgroundColor: ['#4b7ba0','#6f9e7f','#c9a26c','#ac7c5c','#8c7a6b'] }] },
-            options: { cutout: '55%' }
-        });
+    function renderSchoolTable() {
+      const matrixSchools = summary.school_grade_matrix.schools;
+      const matrixGrades = summary.school_grade_matrix.grades;
+      const matrixZ = summary.school_grade_matrix.z;
+      const tableBody = document.getElementById('school-table-body');
 
-        new Chart(document.getElementById('pcdEvolucaoChart'), {
-            type: 'bar',
-            data: { labels: etapas, datasets: [
-                { label: 'PCD 2024', data: pcd2024, backgroundColor: '#92adc2', borderRadius: 8 },
-                { label: 'PCD 2025', data: pcd2025, backgroundColor: '#7c3aed', borderRadius: 8 }
-            ]}
-        });
+      summary.schools.forEach((item) => {
+        const row = document.createElement('tr');
+        const schoolIndex = matrixSchools.indexOf(item.school);
+        const years = schoolIndex >= 0
+          ? matrixGrades.filter((grade, idx) => (matrixZ[schoolIndex][idx] || 0) > 0).join(', ')
+          : '—';
 
-        new Chart(document.getElementById('transferenciasChart'), {
-            type: 'bar',
-            data: { labels: transferenciasLabels, datasets: [{ label: 'Transferências 2025', data: transferenciasEtapa, backgroundColor: '#f59e0b', borderRadius: 8 }] }
-        });
-    </script>
+        const schoolTd = document.createElement('td');
+        schoolTd.textContent = item.school;
+
+        const studentsTd = document.createElement('td');
+        studentsTd.textContent = fmtInt(item.students);
+
+        const shareTd = document.createElement('td');
+        const badge = document.createElement('span');
+        badge.className = 'share-badge';
+        badge.textContent = fmtPct(item.share);
+        shareTd.appendChild(badge);
+
+        const yearsTd = document.createElement('td');
+        yearsTd.textContent = years || '—';
+
+        row.appendChild(schoolTd);
+        row.appendChild(studentsTd);
+        row.appendChild(shareTd);
+        row.appendChild(yearsTd);
+        tableBody.appendChild(row);
+      });
+    }
+
+    function renderSchoolChart() {
+      const schoolLabels = summary.schools.map(d => d.school);
+      const schoolValues = summary.schools.map(d => d.students);
+      const schoolShares = summary.schools.map(d => d.share);
+      createChart('chart-school-count', [
+        {
+          type: 'bar',
+          orientation: 'h',
+          x: schoolValues.slice().reverse(),
+          y: schoolLabels.slice().reverse(),
+          text: schoolValues.slice().reverse().map(v => fmtInt(v)),
+          textposition: 'auto',
+          marker: {
+            color: schoolValues.slice().reverse(),
+            colorscale: [
+              [0, '#C17BFD'],
+              [0.5, '#814BE7'],
+              [1, '#5C7CFA']
+            ],
+            line: { color: 'rgba(129,75,231,0.35)', width: 1 },
+            cornerradius: 8
+          },
+          customdata: schoolShares.slice().reverse(),
+          hovertemplate: '<b>%{y}</b><br>Registros: %{x}<br>Participação: %{customdata:.1f}%<extra></extra>'
+        }
+      ], {
+        margin: { l: 170, r: 30, t: 20, b: 40 },
+        xaxis: { title: { text: 'Quantidade de registros' }, zeroline: false },
+        yaxis: { title: { text: '' } },
+        showlegend: false
+      });
+    }
+
+    function renderGradeChart() {
+      const grades = summary.grades.map(d => d.grade);
+      const values = summary.grades.map(d => d.students);
+      const shares = summary.grades.map(d => d.share);
+      createChart('chart-grade-distribution', [
+        {
+          type: 'bar',
+          x: grades,
+          y: values,
+          text: values.map((v, i) => fmtInt(v) + ' · ' + fmtPct(shares[i])),
+          textposition: 'inside',
+          marker: {
+            color: ['#814BE7', '#5C7CFA', '#34C563'],
+            line: { color: 'rgba(255,255,255,0.25)', width: 1 },
+            cornerradius: 10
+          },
+          customdata: shares,
+          hovertemplate: '<b>%{x}</b><br>Registros: %{y}<br>Participação: %{customdata:.1f}%<extra></extra>'
+        },
+        {
+          type: 'scatter',
+          mode: 'lines+markers+text',
+          x: grades,
+          y: shares,
+          yaxis: 'y2',
+          text: shares.map(v => fmtPct(v)),
+          textposition: 'top center',
+          line: { color: '#E73B4F', width: 2.5, dash: 'dot' },
+          marker: { size: 9, color: '#E73B4F' },
+          hovertemplate: '<b>%{x}</b><br>Participação: %{y:.1f}%<extra></extra>',
+          name: 'Participação'
+        }
+      ], {
+        margin: { l: 60, r: 60, t: 30, b: 50 },
+        yaxis: { title: { text: 'Registros' }, rangemode: 'tozero' },
+        yaxis2: {
+          title: { text: 'Participação (%)' },
+          overlaying: 'y',
+          side: 'right',
+          showgrid: false,
+          range: [0, 45],
+          tickformat: '.0f',
+          automargin: true
+        },
+        legend: { orientation: 'h', y: -0.18 }
+      });
+    }
+
+    function renderStatusChart() {
+      const statusLabels = summary.status.map(d => d.status);
+      const statusValues = summary.status.map(d => d.students);
+      const activeShare = summary.meta.active_share;
+      createChart('chart-status', [
+        {
+          type: 'pie',
+          labels: statusLabels,
+          values: statusValues,
+          hole: 0.62,
+          textinfo: 'label+percent',
+          textposition: 'inside',
+          marker: {
+            colors: ['#34C563', '#E73B4F'],
+            line: { color: 'rgba(255,255,255,0.22)', width: 2 }
+          },
+          sort: false,
+          domain: { x: [0.0, 0.54], y: [0.05, 0.95] },
+          hovertemplate: '<b>%{label}</b><br>Registros: %{value}<br>Participação: %{percent}<extra></extra>',
+          showlegend: true
+        },
+        {
+          type: 'indicator',
+          mode: 'number+gauge',
+          value: activeShare,
+          number: { suffix: '%', font: { family: 'Open Sans, system-ui, sans-serif', size: 44 } },
+          title: { text: 'Base ativa', font: { family: 'Open Sans, system-ui, sans-serif', size: 18 } },
+          gauge: {
+            axis: { range: [0, 100], tickwidth: 0 },
+            bar: { color: '#814BE7' },
+            bgcolor: 'rgba(129,75,231,0.10)',
+            borderwidth: 0,
+            steps: [
+              { range: [0, 50], color: 'rgba(231,59,79,0.12)' },
+              { range: [50, 85], color: 'rgba(212,167,64,0.14)' },
+              { range: [85, 100], color: 'rgba(52,197,99,0.18)' }
+            ]
+          },
+          domain: { x: [0.64, 1], y: [0.12, 0.88] },
+          hovertemplate: 'Ativos: %{value:.1f}%<extra></extra>'
+        }
+      ], {
+        margin: { l: 20, r: 20, t: 20, b: 40 },
+        showlegend: true,
+        legend: { orientation: 'h', y: -0.1 }
+      });
+    }
+
+    function renderHeatmap() {
+      createChart('chart-school-grade-heatmap', [
+        {
+          type: 'heatmap',
+          x: summary.school_grade_matrix.grades,
+          y: summary.school_grade_matrix.schools,
+          z: summary.school_grade_matrix.z,
+          text: summary.school_grade_matrix.z,
+          texttemplate: '%{text}',
+          colorscale: [
+            [0, 'rgba(129,75,231,0.10)'],
+            [0.25, '#C17BFD'],
+            [0.6, '#814BE7'],
+            [1, '#3C5BFF']
+          ],
+          hovertemplate: '<b>%{y}</b><br>%{x}: %{z} registros<extra></extra>',
+          showscale: true,
+          colorbar: { title: { text: 'Registros' }, thickness: 14 }
+        }
+      ], {
+        margin: { l: 190, r: 40, t: 20, b: 50 },
+        xaxis: { title: { text: 'Ano escolar' }, side: 'bottom' },
+        yaxis: { title: { text: '' }, autorange: 'reversed' },
+        showlegend: false
+      });
+    }
+
+    renderKpis();
+    renderNarrative();
+    renderSchoolTable();
+    renderSchoolChart();
+    renderGradeChart();
+    renderStatusChart();
+    renderHeatmap();
+  </script>
 </body>
 </html>
