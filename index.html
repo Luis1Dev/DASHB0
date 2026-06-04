@@ -1,854 +1,290 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Turmas Avaliadas</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-  <style>
-    :root {
-      --primary: #814BE7;
-      --primary-light: #C17BFD;
-      --secondary: #5C7CFA;
-      --accent: #34C563;
-      --bg: #F7F7F7;
-      --card-bg: #FFFFFF;
-      --text: #1F1F24;
-      --text-muted: #6E7191;
-      --border: #E2E4ED;
-      --success: #34C563;
-      --danger: #E73B4F;
-      --warning: #D4A740;
-      --radius: 12px;
-      --shadow: 0 0 0 1px var(--border), 0 2px 8px rgba(7,2,23,0.05);
-      --shadow-hover: 0 0 0 1px var(--border), 0 4px 16px rgba(7,2,23,0.10);
-      --font: 'Open Sans', system-ui, -apple-system, sans-serif;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root:not(.light) {
-        --bg: #1E2235;
-        --card-bg: #2D3148;
-        --text: #E2E4ED;
-        --text-muted: #A2A7BD;
-        --border: #484D66;
-        --shadow: 0 0 0 1px var(--border), 0 2px 8px rgba(7,2,23,0.15);
-        --shadow-hover: 0 0 0 1px var(--border), 0 4px 16px rgba(7,2,23,0.25);
-      }
-    }
-    :root.dark {
-      --bg: #1E2235;
-      --card-bg: #2D3148;
-      --text: #E2E4ED;
-      --text-muted: #A2A7BD;
-      --border: #484D66;
-      --shadow: 0 0 0 1px var(--border), 0 2px 8px rgba(7,2,23,0.15);
-      --shadow-hover: 0 0 0 1px var(--border), 0 4px 16px rgba(7,2,23,0.25);
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-    }
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 60vh;
-      background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(91,108,249,0.06), transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-    .dashboard { max-width: 1400px; margin: 0 auto; padding: 24px; position: relative; z-index: 1; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    .header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 12px;
-      margin-bottom: 32px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--border);
-      position: relative;
-    }
-    .header .logo { height: 32px; width: auto; }
-    .title {
-      font-size: 1.9rem;
-      font-weight: 700;
-      line-height: 1.2;
-      background: linear-gradient(135deg, var(--text) 0%, var(--primary) 65%, var(--secondary) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .subtitle {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      font-weight: 500;
-      letter-spacing: 0.02em;
-      max-width: 760px;
-    }
+<title>Cartão Digital</title>
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 20px;
-    }
-    .col-2  { grid-column: span 2; }
-    .col-3  { grid-column: span 3; }
-    .col-4  { grid-column: span 4; }
-    .col-6  { grid-column: span 6; }
-    .col-8  { grid-column: span 8; }
-    .col-12 { grid-column: span 12; }
-    @media (max-width: 767.98px) {
-      .col-2, .col-3, .col-4, .col-6, .col-8, .col-12 { grid-column: span 12; }
-      .grid { gap: 12px; }
-      .dashboard { padding: 16px; }
-      .kpi-value { font-size: 1.5rem; }
-      .title { font-size: 1.35rem; }
-      .chart-container { min-height: 260px; }
-      .hero-grid { grid-template-columns: 1fr; }
-    }
+<!-- FONT AWESOME -->
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 
-    .card,
-    .kpi-card,
-    .chart-card,
-    .text-card,
-    .table-card {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .card:hover,
-    .kpi-card:hover,
-    .chart-card:hover,
-    .text-card:hover,
-    .table-card:hover {
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-hover);
-    }
-    .card::before,
-    .kpi-card::before,
-    .chart-card::before,
-    .text-card::before,
-    .table-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--primary-light), transparent);
-      opacity: 0.7;
-    }
+<!-- GOOGLE FONTS -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    .kpi-card { padding: 24px; min-height: 152px; }
-    .kpi-label {
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 8px;
-    }
-    .kpi-value {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.15;
-      margin-bottom: 6px;
-    }
-    .kpi-subvalue {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      min-height: 22px;
-    }
-    .kpi-delta {
-      display: inline-block;
-      font-size: 0.75rem;
-      font-weight: 600;
-      margin-top: 10px;
-      padding: 3px 10px;
-      border-radius: 20px;
-    }
-    .kpi-delta.positive { color: var(--success); background: rgba(52,197,99,0.10); }
-    .kpi-delta.negative { color: var(--danger); background: rgba(231,59,79,0.10); }
-    .kpi-delta.neutral { color: var(--primary); background: rgba(129,75,231,0.10); }
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Great+Vibes&display=swap" rel="stylesheet">
 
-    .card-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 12px;
-    }
-    .card-caption {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-top: -4px;
-      margin-bottom: 14px;
-    }
-    .chart-container { min-height: 320px; width: 100%; }
-    .chart-card.tall .chart-container { min-height: 380px; }
+<style>
 
-    .hero-card {
-      padding: 24px;
-      background: linear-gradient(135deg, rgba(129,75,231,0.12), rgba(92,124,250,0.06));
-    }
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1.4fr 1fr;
-      gap: 18px;
-      align-items: start;
-    }
-    .hero-copy p {
-      font-size: 0.95rem;
-      color: var(--text);
-      margin-bottom: 10px;
-      line-height: 1.7;
-    }
-    .hero-copy p:last-child { margin-bottom: 0; }
-    .insight-stack {
-      display: grid;
-      gap: 10px;
-    }
-    .insight-pill {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 14px;
-      background: rgba(255,255,255,0.28);
-      backdrop-filter: blur(8px);
-    }
-    .insight-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-      font-weight: 600;
-    }
-    .insight-value {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-    .insight-detail {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      margin-top: 4px;
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+  
+
+    min-height:100vh;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:#000;
+
+    font-family:'Cormorant Garamond', serif;
+
+    overflow-y:auto;
+
+    padding:40px 0;
+}
+
+/* FUNDO */
+
+.background{
+    position:absolute;
+    width:100%;
+    height:100%;
+
+    background:
+    linear-gradient(rgba(0,0,0,0.7),
+    rgba(0,0,0,0.8)),
+    url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200');
+
+    background-size:cover;
+    background-position:center;
+
+    filter:brightness(0.5);
+}
+
+/* CARD */
+
+.card{
+    position:relative;
+
+    width:350px;
+
+    padding:40px 30px;
+
+    border-radius:25px;
+
+    text-align:center;
+
+    backdrop-filter:blur(5px);
+
+    animation:entrada 1.5s ease;
+}
+
+/* FOTO */
+
+.profile{
+    width:170px;
+    height:170px;
+
+    margin:auto;
+
+    border-radius:50%;
+
+    padding:5px;
+
+    border:4px solid #d4af37;
+
+    animation:flutuar 4s infinite ease-in-out;
+}
+
+.profile img{
+    width:100%;
+    height:100%;
+
+    border-radius:50%;
+
+    object-fit:cover;
+}
+
+/* NOME */
+
+.nome{
+    margin-top:25px;
+
+    font-size:55px;
+
+    color:#d4af37;
+
+    font-family:'Great Vibes', cursive;
+}
+
+/* PROFISSÃO */
+
+.profissao{
+    margin-top:10px;
+
+    letter-spacing:8px;
+
+    color:#d4af37;
+
+    font-size:14px;
+}
+
+/* BOTÕES */
+
+.buttons{
+    margin-top:40px;
+
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.buttons a{
+    text-decoration:none;
+
+    color:#d4af37;
+
+    border:2px solid #d4af37;
+
+    padding:18px;
+
+    font-size:28px;
+
+    transition:0.4s;
+
+    position:relative;
+
+    overflow:hidden;
+}
+
+/* EFEITO HOVER */
+
+.buttons a::before{
+    content:"";
+
+    position:absolute;
+
+    top:0;
+    left:-100%;
+
+    width:100%;
+    height:100%;
+
+    background:#d4af37;
+
+    transition:0.5s;
+
+    z-index:-1;
+}
+
+.buttons a:hover::before{
+    left:0;
+}
+
+.buttons a:hover{
+    color:black;
+
+    transform:scale(1.05);
+}
+
+/* ÍCONES */
+
+.buttons i{
+    margin-right:12px;
+}
+
+/* ANIMAÇÕES */
+
+@keyframes entrada{
+
+    from{
+        opacity:0;
+        transform:translateY(80px);
     }
 
-    .text-card p {
-      font-size: 0.92rem;
-      color: var(--text);
-      margin-bottom: 9px;
-      line-height: 1.65;
+    to{
+        opacity:1;
+        transform:translateY(0);
     }
-    .text-card p:last-child { margin-bottom: 0; }
-    .text-list {
-      padding-left: 18px;
-      color: var(--text);
-      display: grid;
-      gap: 8px;
-      font-size: 0.92rem;
-    }
-    .text-list li::marker { color: var(--primary); }
+}
 
-    .table-card { overflow-x: auto; }
-    .table-card table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .table-card th {
-      text-align: left;
-      padding: 10px 12px;
-      border-bottom: 2px solid var(--border);
-      font-weight: 600;
-      color: var(--text);
-      white-space: nowrap;
-    }
-    .table-card td {
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      color: var(--text);
-      vertical-align: top;
-      word-break: break-word;
-    }
-    .table-card tr:last-child td { border-bottom: none; }
-    .table-card tbody tr:nth-child(even) td { background: rgba(91,108,249,0.02); }
-    .table-card tbody tr:hover td { background: rgba(91,108,249,0.06); }
-    .share-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(129,75,231,0.10);
-      color: var(--primary);
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-weight: 600;
-      font-size: 0.78rem;
-      white-space: nowrap;
+@keyframes flutuar{
+
+    0%{
+        transform:translateY(0px);
     }
 
-    .theme-toggle {
-      position: absolute;
-      top: 24px;
-      right: 0;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 6px 10px;
-      cursor: pointer;
-      color: var(--text-muted);
-      font-size: 1rem;
-      line-height: 1;
-      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .theme-toggle:hover { color: var(--text); border-color: var(--primary-light); }
-    .theme-toggle .icon-sun,
-    .theme-toggle .icon-moon { display: none; }
-    .theme-toggle .icon-sun { display: inline; }
-    :root.dark .theme-toggle .icon-sun { display: none; }
-    :root.dark .theme-toggle .icon-moon { display: inline; }
-    @media (prefers-color-scheme: dark) {
-      :root:not(.light) .theme-toggle .icon-sun { display: none; }
-      :root:not(.light) .theme-toggle .icon-moon { display: inline; }
-      .insight-pill { background: rgba(45,49,72,0.62); }
-      .hero-card { background: linear-gradient(135deg, rgba(129,75,231,0.18), rgba(92,124,250,0.08)); }
+    50%{
+        transform:translateY(-10px);
     }
 
-    .footer {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 40px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border);
-      font-size: 0.75rem;
-      color: var(--text-muted);
+    100%{
+        transform:translateY(0px);
     }
-    .footer .logo-sm { height: 18px; width: auto; }
-  </style>
+}
+
+/* RESPONSIVO */
+
+@media(max-width:400px){
+
+    .card{
+        width:90%;
+    }
+
+    .nome{
+        font-size:45px;
+    }
+
+    .buttons a{
+        font-size:22px;
+    }
+}
+
+</style>
 </head>
+
 <body>
-  <div class="dashboard">
-    <header class="header">
-      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema">
-        <span class="icon-sun">&#9788;</span>
-        <span class="icon-moon">&#9790;</span>
-      </button>
-      <img class="logo" src="https://www.energent.ai/images/logos/svg/energent-logo.svg" alt="Energent logo">
-      <div>
-        <h1 class="title">Turmas Avaliadas</h1>
-        <p class="subtitle">Painel demográfico das listas consolidadas de alunos, com foco em volume por escola sede, distribuição por ano escolar e situação das matrículas.</p>
-      </div>
-    </header>
 
-    <div class="grid">
-      <div class="col-3">
-        <div class="kpi-card">
-          <div class="kpi-label">Registros listados</div>
-          <div class="kpi-value" id="kpi-total-rows">0</div>
-          <div class="kpi-subvalue">Entradas consolidadas no CSV</div>
-          <div class="kpi-delta neutral"><span id="kpi-school-count">0</span> escolas sede</div>
-        </div>
-      </div>
-      <div class="col-3">
-        <div class="kpi-card">
-          <div class="kpi-label">Anos escolares</div>
-          <div class="kpi-value" id="kpi-grade-count">0</div>
-          <div class="kpi-subvalue">Faixas presentes no conjunto</div>
-          <div class="kpi-delta neutral">2º, 5º e 9º ano</div>
-        </div>
-      </div>
-      <div class="col-3">
-        <div class="kpi-card">
-          <div class="kpi-label">Matrículas ativas</div>
-          <div class="kpi-value" id="kpi-active-count">0</div>
-          <div class="kpi-subvalue">Status predominante no dataset</div>
-          <div class="kpi-delta positive" id="kpi-active-share">0,0% do total</div>
-        </div>
-      </div>
-      <div class="col-3">
-        <div class="kpi-card">
-          <div class="kpi-label">Transferidos</div>
-          <div class="kpi-value" id="kpi-transfer-count">0</div>
-          <div class="kpi-subvalue">Registros com movimentação</div>
-          <div class="kpi-delta negative" id="kpi-transfer-share">0,0% do total</div>
-        </div>
-      </div>
+<div class="background"></div>
 
-      <div class="col-12">
-        <div class="text-card hero-card">
-          <div class="card-title">Leitura executiva</div>
-          <div class="hero-grid">
-            <div class="hero-copy">
-              <p>O conjunto reúne <strong id="hero-total"></strong> registros distribuídos em <strong id="hero-school-count"></strong> escolas sede e <strong id="hero-grade-count"></strong> anos escolares. O objetivo do painel é mostrar a composição das turmas avaliadas a partir das listas recebidas, sem métricas de desempenho acadêmico.</p>
-              <p>A maior concentração está em <strong id="hero-top-school"></strong>, com <strong id="hero-top-school-count"></strong> registros. Entre os anos escolares, <strong id="hero-top-grade"></strong> tem a maior presença relativa, reforçando um perfil de cobertura mais forte nas séries intermediárias do conjunto.</p>
-              <p>O status de matrícula é majoritariamente ativo, enquanto os poucos registros transferidos aparecem como exceção. Assim, a leitura principal é de distribuição de cobertura entre escolas e séries, e não de evasão ou rotatividade.</p>
-            </div>
-            <div class="insight-stack">
-              <div class="insight-pill">
-                <div class="insight-label">Escola com maior volume</div>
-                <div class="insight-value" id="insight-top-school"></div>
-                <div class="insight-detail"><span id="insight-top-school-count"></span> registros · <span id="insight-top-school-share"></span></div>
-              </div>
-              <div class="insight-pill">
-                <div class="insight-label">Ano escolar mais frequente</div>
-                <div class="insight-value" id="insight-top-grade"></div>
-                <div class="insight-detail"><span id="insight-top-grade-count"></span> registros · <span id="insight-top-grade-share"></span></div>
-              </div>
-              <div class="insight-pill">
-                <div class="insight-label">Composição do status</div>
-                <div class="insight-value" id="insight-status"></div>
-                <div class="insight-detail">Ativos representam quase toda a base consolidada.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+<div class="card">
 
-      <div class="col-12">
-        <div class="chart-card tall">
-          <div class="card-title">Total de alunos por escola sede</div>
-          <div class="card-caption">Contagem de registros por unidade consolidada, ordenada do maior para o menor volume.</div>
-          <div class="chart-container" id="chart-school-count"></div>
-        </div>
-      </div>
-
-      <div class="col-12">
-        <div class="chart-card">
-          <div class="card-title">Distribuição de alunos por ano escolar</div>
-          <div class="card-caption">Comparação entre 2º, 5º e 9º ano, mostrando volume absoluto e participação no total.</div>
-          <div class="chart-container" id="chart-grade-distribution"></div>
-        </div>
-      </div>
-
-      <div class="col-12">
-        <div class="chart-card">
-          <div class="card-title">Status das matrículas</div>
-          <div class="card-caption">Predominância de matrículas ativas em relação aos poucos registros transferidos.</div>
-          <div class="chart-container" id="chart-status"></div>
-        </div>
-      </div>
-
-      <div class="col-12">
-        <div class="chart-card tall">
-          <div class="card-title">Cobertura por escola sede e ano escolar</div>
-          <div class="card-caption">Mapa de calor para identificar em quais séries cada escola sede concentra suas turmas avaliadas.</div>
-          <div class="chart-container" id="chart-school-grade-heatmap"></div>
-        </div>
-      </div>
-
-      <div class="col-6">
-        <div class="table-card">
-          <div class="card-title">Resumo por escola sede</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Escola sede</th>
-                <th>Registros</th>
-                <th>Participação</th>
-                <th>Anos presentes</th>
-              </tr>
-            </thead>
-            <tbody id="school-table-body"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="col-6">
-        <div class="text-card">
-          <div class="card-title">Como interpretar este painel</div>
-          <ul class="text-list">
-            <li>Os totais representam registros consolidados do arquivo CSV informado, adequados para leitura demográfica das turmas.</li>
-            <li>O gráfico por escola sede mostra onde estão concentradas as listas avaliadas e facilita identificar o peso relativo de cada unidade.</li>
-            <li>A distribuição por ano escolar resume a cobertura entre séries, enquanto o mapa de calor destaca quais escolas aparecem em cada ano.</li>
-            <li>O status de matrícula indica baixa movimentação na base consolidada, com apenas uma parcela residual fora do status ativo.</li>
-          </ul>
-        </div>
-      </div>
+    <!-- FOTO -->
+    <div class="profile">
+        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=500" alt="">
     </div>
 
-    <footer class="footer">
-      <img class="logo-sm" src="https://www.energent.ai/images/logos/svg/energent-logo.svg" alt="Energent logo">
-      <a href="https://www.energent.ai" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">Powered by energent.ai</a>
-    </footer>
-  </div>
+    <!-- NOME -->
+    <h1 class="nome">Carla Rodrigues</h1>
 
-  <script>
-    const summary = {
-      meta: {
-        title: 'Turmas Avaliadas',
-        dataset: '/home/user/Desktop/data/generated_files/dataset_turmas_consolidado.csv',
-        total_rows: 239,
-        school_count: 8,
-        grade_count: 3,
-        active_count: 237,
-        transfer_count: 2,
-        active_share: 99.2,
-        transfer_share: 0.8,
-        duplicate_name_rows: 3
-      },
-      schools: [
-        { school: 'Ludugero Gomes', students: 58, share: 24.3 },
-        { school: 'DOMINGOS FERINO', students: 42, share: 17.6 },
-        { school: 'Ludugero Gomes (1)', students: 28, share: 11.7 },
-        { school: 'Nossa Senhora do Carmo', students: 26, share: 10.9 },
-        { school: 'Presidente Castelo Branco', students: 23, share: 9.6 },
-        { school: 'João Vaz', students: 22, share: 9.2 },
-        { school: 'RAIMUNDO FERREIRA', students: 22, share: 9.2 },
-        { school: 'Dom Bosco', students: 18, share: 7.5 }
-      ],
-      grades: [
-        { grade: '2º ANO', students: 90, share: 37.7 },
-        { grade: '5º ANO', students: 93, share: 38.9 },
-        { grade: '9º ANO', students: 56, share: 23.4 }
-      ],
-      status: [
-        { status: 'Ativo', students: 237, share: 99.2 },
-        { status: 'Transferido', students: 2, share: 0.8 }
-      ],
-      school_grade_matrix: {
-        schools: [
-          'Ludugero Gomes',
-          'DOMINGOS FERINO',
-          'Ludugero Gomes (1)',
-          'Nossa Senhora do Carmo',
-          'Presidente Castelo Branco',
-          'João Vaz',
-          'RAIMUNDO FERREIRA',
-          'Dom Bosco'
-        ],
-        grades: ['2º ANO', '5º ANO', '9º ANO'],
-        z: [
-          [0, 30, 28],
-          [23, 19, 0],
-          [0, 0, 28],
-          [0, 26, 0],
-          [23, 0, 0],
-          [22, 0, 0],
-          [22, 0, 0],
-          [0, 18, 0]
-        ]
-      }
-    };
+    <!-- PROFISSÃO -->
+    <p class="profissao">SOCIAL MEDIA</p>
 
-    function getEffectiveDark() {
-      const root = document.documentElement;
-      if (root.classList.contains('dark')) return true;
-      if (root.classList.contains('light')) return false;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
+    <!-- BOTÕES -->
+    <div class="buttons">
 
-    function toggleTheme() {
-      const root = document.documentElement;
-      const currentlyDark = getEffectiveDark();
-      root.classList.remove('dark', 'light');
-      root.classList.add(currentlyDark ? 'light' : 'dark');
-      rebuildCharts();
-    }
+        <a href="#">
+            <i class="fa-solid fa-briefcase"></i>
+            PORTFÓLIO
+        </a>
 
-    const COLORS = ['#814BE7', '#5C7CFA', '#34C563', '#D4A740', '#E73B4F'];
-    const chartRegistry = [];
+        <a href="#">
+            <i class="fa-solid fa-money-check-dollar"></i>
+            ORÇAMENTO
+        </a>
 
-    function getDefaultLayout() {
-      const dark = getEffectiveDark();
-      return {
-        font: { family: 'Open Sans, system-ui, sans-serif', color: dark ? '#E2E4ED' : '#1F1F24' },
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent',
-        autosize: true,
-        margin: { l: 50, r: 30, t: 50, b: 50 },
-        xaxis: { gridcolor: dark ? '#5A5F78' : '#E2E4ED', automargin: true },
-        yaxis: { gridcolor: dark ? '#5A5F78' : '#E2E4ED', automargin: true },
-        colorway: COLORS,
-        legend: { font: { family: 'Open Sans, system-ui, sans-serif', size: 12 } },
-        hoverlabel: {
-          font: { family: 'Open Sans, system-ui, sans-serif', size: 13 },
-          bgcolor: dark ? '#3D4260' : '#FFFFFF',
-          bordercolor: dark ? '#5A5F78' : '#E2E4ED',
-          namelength: -1
-        }
-      };
-    }
+        <a href="#">
+            <i class="fa-solid fa-phone"></i>
+            CONTATO
+        </a>
 
-    const NESTED_LAYOUT_KEYS = ['xaxis', 'xaxis2', 'yaxis', 'yaxis2', 'margin', 'legend', 'font', 'hoverlabel', 'grid'];
-    function mergeLayouts(base, overrides) {
-      const merged = { ...base, ...overrides };
-      for (const key of NESTED_LAYOUT_KEYS) {
-        if (base[key] && overrides[key] && typeof base[key] === 'object' && typeof overrides[key] === 'object') {
-          merged[key] = { ...base[key], ...overrides[key] };
-        }
-      }
-      return merged;
-    }
+        <a href="#">
+            <i class="fa-solid fa-envelope"></i>
+            EMAIL
+        </a>
 
-    function createChart(id, traces, layoutOverrides = {}) {
-      const CLIP_TYPES = ['scatter', 'scattergl', 'bar', 'waterfall', 'funnel', 'histogram', 'box', 'violin'];
-      const processed = traces.map(t =>
-        t.text && t.textposition && t.cliponaxis === undefined && CLIP_TYPES.includes(t.type || 'scatter')
-          ? { ...t, cliponaxis: false }
-          : t
-      );
-      chartRegistry.push({ id, traces: processed, layoutOverrides });
-      Plotly.newPlot(id, processed, mergeLayouts(getDefaultLayout(), layoutOverrides), { responsive: true, displayModeBar: false });
-    }
+    </div>
 
-    function rebuildCharts() {
-      chartRegistry.forEach(({ id, traces, layoutOverrides }) => {
-        Plotly.react(id, traces, mergeLayouts(getDefaultLayout(), layoutOverrides), { responsive: true, displayModeBar: false });
-      });
-    }
+</div>
 
-    const fmtInt = value => new Intl.NumberFormat('pt-BR').format(value);
-    const fmtPct = value => value.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
-
-    function setText(id, value) {
-      const el = document.getElementById(id);
-      if (el) el.textContent = value;
-    }
-
-    function renderKpis() {
-      setText('kpi-total-rows', fmtInt(summary.meta.total_rows));
-      setText('kpi-school-count', fmtInt(summary.meta.school_count));
-      setText('kpi-grade-count', fmtInt(summary.meta.grade_count));
-      setText('kpi-active-count', fmtInt(summary.meta.active_count));
-      setText('kpi-active-share', fmtPct(summary.meta.active_share) + ' do total');
-      setText('kpi-transfer-count', fmtInt(summary.meta.transfer_count));
-      setText('kpi-transfer-share', fmtPct(summary.meta.transfer_share) + ' do total');
-    }
-
-    function renderNarrative() {
-      const topSchool = summary.schools[0];
-      const topGrade = summary.grades.slice().sort((a, b) => b.students - a.students)[0];
-      setText('hero-total', fmtInt(summary.meta.total_rows));
-      setText('hero-school-count', fmtInt(summary.meta.school_count));
-      setText('hero-grade-count', fmtInt(summary.meta.grade_count));
-      setText('hero-top-school', topSchool.school);
-      setText('hero-top-school-count', fmtInt(topSchool.students));
-      setText('hero-top-grade', topGrade.grade);
-      setText('hero-top-grade-count', fmtInt(topGrade.students));
-      setText('insight-top-school', topSchool.school);
-      setText('insight-top-school-count', fmtInt(topSchool.students) + ' registros');
-      setText('insight-top-school-share', fmtPct(topSchool.share));
-      setText('insight-top-grade', topGrade.grade);
-      setText('insight-top-grade-count', fmtInt(topGrade.students) + ' registros');
-      setText('insight-top-grade-share', fmtPct(topGrade.share));
-      setText('insight-status', fmtPct(summary.meta.active_share) + ' ativo');
-    }
-
-    function renderSchoolTable() {
-      const matrixSchools = summary.school_grade_matrix.schools;
-      const matrixGrades = summary.school_grade_matrix.grades;
-      const matrixZ = summary.school_grade_matrix.z;
-      const tableBody = document.getElementById('school-table-body');
-
-      summary.schools.forEach((item) => {
-        const row = document.createElement('tr');
-        const schoolIndex = matrixSchools.indexOf(item.school);
-        const years = schoolIndex >= 0
-          ? matrixGrades.filter((grade, idx) => (matrixZ[schoolIndex][idx] || 0) > 0).join(', ')
-          : '—';
-
-        const schoolTd = document.createElement('td');
-        schoolTd.textContent = item.school;
-
-        const studentsTd = document.createElement('td');
-        studentsTd.textContent = fmtInt(item.students);
-
-        const shareTd = document.createElement('td');
-        const badge = document.createElement('span');
-        badge.className = 'share-badge';
-        badge.textContent = fmtPct(item.share);
-        shareTd.appendChild(badge);
-
-        const yearsTd = document.createElement('td');
-        yearsTd.textContent = years || '—';
-
-        row.appendChild(schoolTd);
-        row.appendChild(studentsTd);
-        row.appendChild(shareTd);
-        row.appendChild(yearsTd);
-        tableBody.appendChild(row);
-      });
-    }
-
-    function renderSchoolChart() {
-      const schoolLabels = summary.schools.map(d => d.school);
-      const schoolValues = summary.schools.map(d => d.students);
-      const schoolShares = summary.schools.map(d => d.share);
-      createChart('chart-school-count', [
-        {
-          type: 'bar',
-          orientation: 'h',
-          x: schoolValues.slice().reverse(),
-          y: schoolLabels.slice().reverse(),
-          text: schoolValues.slice().reverse().map(v => fmtInt(v)),
-          textposition: 'auto',
-          marker: {
-            color: schoolValues.slice().reverse(),
-            colorscale: [
-              [0, '#C17BFD'],
-              [0.5, '#814BE7'],
-              [1, '#5C7CFA']
-            ],
-            line: { color: 'rgba(129,75,231,0.35)', width: 1 },
-            cornerradius: 8
-          },
-          customdata: schoolShares.slice().reverse(),
-          hovertemplate: '<b>%{y}</b><br>Registros: %{x}<br>Participação: %{customdata:.1f}%<extra></extra>'
-        }
-      ], {
-        margin: { l: 170, r: 30, t: 20, b: 40 },
-        xaxis: { title: { text: 'Quantidade de registros' }, zeroline: false },
-        yaxis: { title: { text: '' } },
-        showlegend: false
-      });
-    }
-
-    function renderGradeChart() {
-      const grades = summary.grades.map(d => d.grade);
-      const values = summary.grades.map(d => d.students);
-      const shares = summary.grades.map(d => d.share);
-      createChart('chart-grade-distribution', [
-        {
-          type: 'bar',
-          x: grades,
-          y: values,
-          text: values.map((v, i) => fmtInt(v) + ' · ' + fmtPct(shares[i])),
-          textposition: 'inside',
-          marker: {
-            color: ['#814BE7', '#5C7CFA', '#34C563'],
-            line: { color: 'rgba(255,255,255,0.25)', width: 1 },
-            cornerradius: 10
-          },
-          customdata: shares,
-          hovertemplate: '<b>%{x}</b><br>Registros: %{y}<br>Participação: %{customdata:.1f}%<extra></extra>'
-        },
-        {
-          type: 'scatter',
-          mode: 'lines+markers+text',
-          x: grades,
-          y: shares,
-          yaxis: 'y2',
-          text: shares.map(v => fmtPct(v)),
-          textposition: 'top center',
-          line: { color: '#E73B4F', width: 2.5, dash: 'dot' },
-          marker: { size: 9, color: '#E73B4F' },
-          hovertemplate: '<b>%{x}</b><br>Participação: %{y:.1f}%<extra></extra>',
-          name: 'Participação'
-        }
-      ], {
-        margin: { l: 60, r: 60, t: 30, b: 50 },
-        yaxis: { title: { text: 'Registros' }, rangemode: 'tozero' },
-        yaxis2: {
-          title: { text: 'Participação (%)' },
-          overlaying: 'y',
-          side: 'right',
-          showgrid: false,
-          range: [0, 45],
-          tickformat: '.0f',
-          automargin: true
-        },
-        legend: { orientation: 'h', y: -0.18 }
-      });
-    }
-
-    function renderStatusChart() {
-      const statusLabels = summary.status.map(d => d.status);
-      const statusValues = summary.status.map(d => d.students);
-      const activeShare = summary.meta.active_share;
-      createChart('chart-status', [
-        {
-          type: 'pie',
-          labels: statusLabels,
-          values: statusValues,
-          hole: 0.62,
-          textinfo: 'label+percent',
-          textposition: 'inside',
-          marker: {
-            colors: ['#34C563', '#E73B4F'],
-            line: { color: 'rgba(255,255,255,0.22)', width: 2 }
-          },
-          sort: false,
-          domain: { x: [0.0, 0.54], y: [0.05, 0.95] },
-          hovertemplate: '<b>%{label}</b><br>Registros: %{value}<br>Participação: %{percent}<extra></extra>',
-          showlegend: true
-        },
-        {
-          type: 'indicator',
-          mode: 'number+gauge',
-          value: activeShare,
-          number: { suffix: '%', font: { family: 'Open Sans, system-ui, sans-serif', size: 44 } },
-          title: { text: 'Base ativa', font: { family: 'Open Sans, system-ui, sans-serif', size: 18 } },
-          gauge: {
-            axis: { range: [0, 100], tickwidth: 0 },
-            bar: { color: '#814BE7' },
-            bgcolor: 'rgba(129,75,231,0.10)',
-            borderwidth: 0,
-            steps: [
-              { range: [0, 50], color: 'rgba(231,59,79,0.12)' },
-              { range: [50, 85], color: 'rgba(212,167,64,0.14)' },
-              { range: [85, 100], color: 'rgba(52,197,99,0.18)' }
-            ]
-          },
-          domain: { x: [0.64, 1], y: [0.12, 0.88] },
-          hovertemplate: 'Ativos: %{value:.1f}%<extra></extra>'
-        }
-      ], {
-        margin: { l: 20, r: 20, t: 20, b: 40 },
-        showlegend: true,
-        legend: { orientation: 'h', y: -0.1 }
-      });
-    }
-
-    function renderHeatmap() {
-      createChart('chart-school-grade-heatmap', [
-        {
-          type: 'heatmap',
-          x: summary.school_grade_matrix.grades,
-          y: summary.school_grade_matrix.schools,
-          z: summary.school_grade_matrix.z,
-          text: summary.school_grade_matrix.z,
-          texttemplate: '%{text}',
-          colorscale: [
-            [0, 'rgba(129,75,231,0.10)'],
-            [0.25, '#C17BFD'],
-            [0.6, '#814BE7'],
-            [1, '#3C5BFF']
-          ],
-          hovertemplate: '<b>%{y}</b><br>%{x}: %{z} registros<extra></extra>',
-          showscale: true,
-          colorbar: { title: { text: 'Registros' }, thickness: 14 }
-        }
-      ], {
-        margin: { l: 190, r: 40, t: 20, b: 50 },
-        xaxis: { title: { text: 'Ano escolar' }, side: 'bottom' },
-        yaxis: { title: { text: '' }, autorange: 'reversed' },
-        showlegend: false
-      });
-    }
-
-    renderKpis();
-    renderNarrative();
-    renderSchoolTable();
-    renderSchoolChart();
-    renderGradeChart();
-    renderStatusChart();
-    renderHeatmap();
-  </script>
 </body>
 </html>
